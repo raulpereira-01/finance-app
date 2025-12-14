@@ -1,16 +1,45 @@
-# finance_app
+# Finance App
 
-A new Flutter project.
+Aplicación móvil en Flutter para registrar ingresos, gastos y categorías de forma local utilizando Hive. Incluye un flujo de onboarding guiado y un panel personalizable con widgets reordenables.
 
-## Getting Started
+## Características
+- **Onboarding paso a paso**: pantalla de bienvenida seguida de formularios para ingresar ingresos, gastos fijos y un resumen previo a usar la app.
+- **Gestión de categorías**: creación y edición con selector de color y persistencia local con Hive.
+- **Persistencia local**: modelos de ingresos, gastos y categorías registrados como adaptadores de Hive y almacenados en cajas dedicadas.
+- **Dashboard configurable**: widgets para balance y desglose de gastos por categoría con opción de habilitar/deshabilitar y reordenar desde la vista de ajustes.
+- **Interfaz Material 3**: tema con `colorSchemeSeed` en verde y banners de depuración desactivados.
 
-This project is a starting point for a Flutter application.
+## Estructura del proyecto
+- `lib/main.dart`: inicializa Hive, registra adaptadores y arranca la aplicación con `OnboardingWelcomeScreen`.
+- `lib/data/models/`: modelos `CategoryModel`, `IncomeModel` y `ExpenseModel` con los adaptadores generados.
+- `lib/domain/entities/`: entidades de dominio para ingresos, gastos, categorías, balance mensual y tipos de widgets del panel.
+- `lib/presentation/screens/`: pantallas de onboarding, categorías y dashboard junto con sus widgets auxiliares.
+- `lib/core/constants/`: constantes de nombres de cajas Hive.
 
-A few resources to get you started if this is your first Flutter project:
+## Requisitos previos
+- Flutter 3.10+ y SDK de Dart alineado (ver `environment` en `pubspec.yaml`).
+- Herramientas de plataforma (Android SDK, Xcode, etc.) configuradas para compilar apps móviles o escritorio.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Configuración y ejecución
+1. Instala dependencias de Dart y Flutter:
+   ```bash
+   flutter pub get
+   ```
+2. Ejecuta la app en un emulador o dispositivo conectado:
+   ```bash
+   flutter run
+   ```
+3. (Opcional) Genera los adaptadores de Hive al modificar modelos:
+   ```bash
+   flutter pub run build_runner build --delete-conflicting-outputs
+   ```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Pruebas
+Ejecuta la suite de tests de Flutter:
+```bash
+flutter test
+```
+
+## Notas
+- El almacenamiento es completamente local gracias a Hive; no se requiere backend externo.
+- `fl_chart` se utiliza para gráficos de gastos por categoría en el dashboard.
