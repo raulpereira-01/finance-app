@@ -1,13 +1,14 @@
+import 'package:finance_app/data/models/dashboard_config_model.dart';
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/dashboard_widget_type.dart';
 
 class DashboardSettingsScreen extends StatefulWidget {
-  final Map<DashboardWidgetType, bool> enabledWidgets;
+  final List<DashboardConfigModel> configs;
 
   const DashboardSettingsScreen({
     super.key,
-    required this.enabledWidgets,
+    required this.configs, required Map<dynamic, dynamic> enabledWidgets,
   });
 
   @override
@@ -15,14 +16,19 @@ class DashboardSettingsScreen extends StatefulWidget {
       _DashboardSettingsScreenState();
 }
 
-class _DashboardSettingsScreenState
-    extends State<DashboardSettingsScreen> {
-  late Map<DashboardWidgetType, bool> _state;
+class _DashboardSettingsScreenState extends State<DashboardSettingsScreen> {
+  late List<DashboardConfigModel> _configs;
 
   @override
   void initState() {
     super.initState();
-    _state = Map.from(widget.enabledWidgets);
+    _configs = widget.configs
+        .map((c) => DashboardConfigModel(
+      type: c.type,
+      enabled: c.enabled,
+      order: c.order,
+    ))
+        .toList();
   }
 
   @override

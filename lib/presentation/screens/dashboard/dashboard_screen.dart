@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/dashboard_widget_type.dart';
+import '../../../domain/services/dashboard_config_service.dart';
+import '../../../data/models/dashboard_config_model.dart';
 import 'balance_widget.dart';
 import 'dashboard_settings_screen.dart';
 import 'expenses_by_category_pie_widget.dart';
@@ -13,35 +15,38 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  final List<Widget> _widgets = [
-    const BalanceWidget(),
-    const ExpensesByCategoryPieWidget(),
-  ];
-  final Map<DashboardWidgetType, bool> _enabledWidgets = {
-    DashboardWidgetType.balance: true,
-    DashboardWidgetType.expensesByCategory: true,
-    DashboardWidgetType.incomeVsExpenses: false,
-  };
+  late List<DashboardConfigModel> _configs;
+  final _configService = DashboardConfigService();
 
-  List<Widget> _buildDashboardWidgets() {
-    final widgets = <Widget>[];
-
-    if (_enabledWidgets[DashboardWidgetType.balance] == true) {
-      widgets.add(const BalanceWidget());
-    }
-    if (_enabledWidgets[DashboardWidgetType.expensesByCategory] == true) {
-      widgets.add(const ExpensesByCategoryPieWidget());
-    }
-    if (_enabledWidgets[DashboardWidgetType.incomeVsExpenses] == true) {
-      widgets.add(const Placeholder());
-    }
-
-    return widgets;
+  @override
+  void initState() {
+    super.initState();
+    _configs = _configService.load();
   }
 
+  /// Devuelve SOLO los configs visibles, ordenados
+  List<DashboardConfigModel> _visibleConfigs() {
+    return [..._configs]
+      ..sort((a, b) => a.order.compareTo(b.order))
+      ..removeWhere((c) => !c.enabled);
+  }
+
+  /// Construye el widget según el tipo
+  Widget _buildWidgetFromType(DashboardWidgetType type) {
+    switch (type) {
+      case DashboardWidgetType.balance:
+        return const BalanceWidget();
+      case DashboardWidgetType.expensesByCategory:
+        return const ExpensesByCategoryPieWidget();
+      case DashboardWidgetType.incomeVsExpenses:
+        return const Placeholder();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final visibleConfigs = _visibleConfigs();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
@@ -49,19 +54,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () async {
-              final result = await Navigator.push<Map<DashboardWidgetType, bool>>(
+              final result =
+              await Navigator.push<List<DashboardConfigModel>>(
                 context,
                 MaterialPageRoute(
                   builder: (_) => DashboardSettingsScreen(
-                    enabledWidgets: _enabledWidgets,
+                    configs: _configs, enabledWidgets: {},
                   ),
                 ),
               );
 
               if (result != null) {
                 setState(() {
-                  _enabledWidgets.clear();
-                  _enabledWidgets.addAll(result);
+                  _configs = result;
+                  _configService.save(_configs);
                 });
               }
             },
@@ -73,18 +79,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
         onReorder: (oldIndex, newIndex) {
           setState(() {
             if (newIndex > oldIndex) newIndex--;
-            final item = _widgets.removeAt(oldIndex);
-            _widgets.insert(newIndex, item);
+
+            final movedItem = visibleConfigs.removeAt(oldIndex);
+            visibleConfigs.insert(newIndex, movedItem);
+
+            // Reaplicamos el orden a la lista completa
+            for (int i = 0; i < visibleConfigs.length; i++) {
+              final indexInConfigs =
+              _configs.indexWhere((c) => c.type == visibleConfigs[i].type);
+
+              _configs[indexInConfigs] = DashboardConfigModel(
+                type: _configs[indexInConfigs].type,
+                enabled: _configs[indexInConfigs].enabled,
+                order: i,
+              );
+            }
+
+            _configService.save(_configs);
           });
         },
         children: [
-          for (int i = 0; i < _buildDashboardWidgets().length; i++)
+          for (final config in visibleConfigs)
             Container(
-              key: ValueKey(i),
+              key: ValueKey(config.type),
               margin: const EdgeInsets.only(bottom: 12),
               child: Stack(
                 children: [
-                  _buildDashboardWidgets()[i],
+                  _buildWidgetFromType(config.type),
                   const Positioned(
                     right: 8,
                     top: 8,
