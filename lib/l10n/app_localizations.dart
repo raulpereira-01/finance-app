@@ -36,6 +36,12 @@ class AppLocalizations {
       'authenticationFailed':
           'We could not verify your identity. Please try again.',
       'authenticationChecking': 'Checking device security...',
+      'authenticationNotSupported':
+          'This device does not support biometrics or device credentials.',
+      'authenticationNoBiometrics':
+          'No biometric method is set up. Add a fingerprint or PIN in settings.',
+      'authenticationLockedOut':
+          'Too many attempts. Use your device PIN or try again later.',
     },
     'es': {
       'appTitle': 'Finance App',
@@ -65,6 +71,12 @@ class AppLocalizations {
       'authenticationFailed':
           'No pudimos verificar tu identidad. Inténtalo nuevamente.',
       'authenticationChecking': 'Comprobando seguridad del dispositivo...',
+      'authenticationNotSupported':
+          'Este dispositivo no admite biometría ni credenciales del sistema.',
+      'authenticationNoBiometrics':
+          'No hay biometría configurada. Añade huella o PIN en ajustes.',
+      'authenticationLockedOut':
+          'Demasiados intentos. Usa el PIN del dispositivo o inténtalo luego.',
     },
   };
 
@@ -96,6 +108,9 @@ class AppLocalizations {
   String get authenticationRetry => _text('authenticationRetry');
   String get authenticationFailed => _text('authenticationFailed');
   String get authenticationChecking => _text('authenticationChecking');
+  String get authenticationNotSupported => _text('authenticationNotSupported');
+  String get authenticationNoBiometrics => _text('authenticationNoBiometrics');
+  String get authenticationLockedOut => _text('authenticationLockedOut');
 
   static AppLocalizations of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;

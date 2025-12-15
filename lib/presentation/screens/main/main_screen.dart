@@ -3,7 +3,7 @@ import 'package:finance_app/presentation/screens/movements/movements_screen.dart
 import 'package:finance_app/presentation/screens/settings/settings_screen.dart';
 import 'package:flutter/material.dart';
 
-import '../../l10n/app_localizations.dart';
+import '../../../l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
