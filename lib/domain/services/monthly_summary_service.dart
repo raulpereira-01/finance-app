@@ -12,15 +12,12 @@ class MonthlySummaryService {
   );
 
   MonthlySummary calculateForMonthYear(int month, int year) {
+    final periodEnd = DateTime(year, month + 1, 0);
+
     final incomeTotal = _incomeBox.values.fold<double>(0, (sum, income) {
-      final sameMonth = income.date.month == month;
-      final sameYear = income.date.year == year;
+      final started = !income.startDate.isAfter(periodEnd);
 
-      if (sameMonth && sameYear) {
-        return sum + income.amount;
-      }
-
-      return sum;
+      return started ? sum + income.amount : sum;
     });
 
     final expensesTotal = _expenseBox.values.fold<double>(0, (sum, expense) {

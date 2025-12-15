@@ -14,12 +14,17 @@ class IncomeModel extends HiveObject {
   final double amount;
 
   @HiveField(3)
-  final DateTime date;
+  final DateTime startDate;
+
+  /// Día del mes en el que se registra este ingreso de manera recurrente.
+  @HiveField(4)
+  final int dayOfMonth;
 
   IncomeModel({
     required this.id,
     required this.name,
     required this.amount,
-    required this.date,
+    required this.startDate,
+    required this.dayOfMonth,
   });
 }

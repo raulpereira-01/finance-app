@@ -46,7 +46,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list_alt),
-            label: 'Movements',
+            label: 'Plan',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard, size: 32),

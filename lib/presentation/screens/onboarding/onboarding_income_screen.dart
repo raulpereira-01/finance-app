@@ -17,6 +17,7 @@ class _OnboardingIncomeScreenState extends State<OnboardingIncomeScreen> {
   final _nameController = TextEditingController();
   final _amountController = TextEditingController();
   final _uuid = const Uuid();
+  int _selectedDay = DateTime.now().day;
 
   late Box<IncomeModel> _incomeBox;
 
@@ -38,7 +39,8 @@ class _OnboardingIncomeScreenState extends State<OnboardingIncomeScreen> {
       id: _uuid.v4(),
       name: name,
       amount: amount,
-      date: DateTime.now(),
+      startDate: DateTime.now(),
+      dayOfMonth: _selectedDay,
     );
 
     _incomeBox.put(income.id, income);
@@ -71,6 +73,26 @@ class _OnboardingIncomeScreenState extends State<OnboardingIncomeScreen> {
               ),
               decoration: const InputDecoration(labelText: 'Amount'),
             ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<int>(
+              value: _selectedDay,
+              decoration: const InputDecoration(
+                labelText: 'Day of month',
+              ),
+              items: List.generate(31, (index) => index + 1)
+                  .map(
+                    (day) => DropdownMenuItem(
+                      value: day,
+                      child: Text('Day $day of every month'),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() => _selectedDay = value);
+                }
+              },
+            ),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
@@ -88,6 +110,7 @@ class _OnboardingIncomeScreenState extends State<OnboardingIncomeScreen> {
                   final income = incomes[index];
                   return ListTile(
                     title: Text(income.name),
+                    subtitle: Text('Every month on day ${income.dayOfMonth}'),
                     trailing: Text(income.amount.toStringAsFixed(2)),
                   );
                 },
