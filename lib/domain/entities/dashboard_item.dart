@@ -1,8 +1,4 @@
-enum DashboardItemType {
-  balance,
-  expensesByCategory,
-  incomeVsExpenses,
-}
+enum DashboardItemType { balance, expensesByCategory, incomeVsExpenses }
 
 class DashboardItem {
   final String id;
@@ -17,10 +13,7 @@ class DashboardItem {
     required this.order,
   });
 
-  DashboardItem copyWith({
-    bool? enabled,
-    int? order,
-  }) {
+  DashboardItem copyWith({bool? enabled, int? order}) {
     return DashboardItem(
       id: id,
       type: type,

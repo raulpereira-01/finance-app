@@ -34,10 +34,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
@@ -52,10 +49,7 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Movements',
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.dashboard,
-              size: 32,
-            ),
+            icon: Icon(Icons.dashboard, size: 32),
             label: 'Dashboard',
           ),
           BottomNavigationBarItem(

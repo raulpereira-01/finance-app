@@ -1,16 +1,18 @@
 import 'package:hive/hive.dart';
 
 import '../../core/constants/hive_boxes.dart';
-import '../../data/models/expense_model.dart';
 import '../../data/models/category_model.dart';
+import '../../data/models/expense_model.dart';
 import '../entities/category_expense.dart';
 import '../entities/selected_period.dart';
 
 class ExpensesByCategoryService {
-  final Box<ExpenseModel> _expenseBox =
-  Hive.box<ExpenseModel>(HiveBoxes.expenses);
-  final Box<CategoryModel> _categoryBox =
-  Hive.box<CategoryModel>(HiveBoxes.categories);
+  final Box<ExpenseModel> _expenseBox = Hive.box<ExpenseModel>(
+    HiveBoxes.expenses,
+  );
+  final Box<CategoryModel> _categoryBox = Hive.box<CategoryModel>(
+    HiveBoxes.categories,
+  );
 
   List<CategoryExpense> calculateForPeriod(SelectedPeriod period) {
     final expenses = _expenseBox.values.where((expense) {
@@ -23,7 +25,7 @@ class ExpensesByCategoryService {
     for (final expense in expenses) {
       totalsByCategory.update(
         expense.categoryId,
-            (value) => value + expense.amount,
+        (value) => value + expense.amount,
         ifAbsent: () => expense.amount,
       );
     }
@@ -31,8 +33,7 @@ class ExpensesByCategoryService {
     final categories = _categoryBox.values.toList();
 
     return totalsByCategory.entries.map((entry) {
-      final category =
-      categories.firstWhere((c) => c.id == entry.key);
+      final category = categories.firstWhere((c) => c.id == entry.key);
 
       return CategoryExpense(
         categoryId: category.id,

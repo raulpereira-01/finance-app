@@ -1,8 +1,8 @@
 import 'package:hive/hive.dart';
+
 import '../../domain/entities/dashboard_widget_type.dart';
 
-class DashboardWidgetTypeAdapter
-    extends TypeAdapter<DashboardWidgetType> {
+class DashboardWidgetTypeAdapter extends TypeAdapter<DashboardWidgetType> {
   @override
   final int typeId = 5;
 

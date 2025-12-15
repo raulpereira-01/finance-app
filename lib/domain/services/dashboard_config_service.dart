@@ -1,11 +1,12 @@
 import 'package:hive/hive.dart';
 
-import '../../domain/entities/dashboard_widget_type.dart';
 import '../../data/models/dashboard_config_model.dart';
+import '../../domain/entities/dashboard_widget_type.dart';
 
 class DashboardConfigService {
-  final Box<DashboardConfigModel> _box =
-  Hive.box<DashboardConfigModel>('dashboard_config');
+  final Box<DashboardConfigModel> _box = Hive.box<DashboardConfigModel>(
+    'dashboard_config',
+  );
 
   List<DashboardConfigModel> load() {
     if (_box.isEmpty) {

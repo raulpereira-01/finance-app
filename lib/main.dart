@@ -1,6 +1,6 @@
 import 'package:finance_app/core/constants/hive_boxes.dart';
-import 'package:finance_app/data/models/dashboard_config_model.dart';
 import 'package:finance_app/data/models/category_model.dart';
+import 'package:finance_app/data/models/dashboard_config_model.dart';
 import 'package:finance_app/data/models/expense_model.dart';
 import 'package:finance_app/data/models/income_model.dart';
 import 'package:finance_app/data/models/selected_period_model.dart';
@@ -28,7 +28,6 @@ Future<void> main() async {
   await Hive.openBox<DashboardConfigModel>('dashboard_config');
   await Hive.openBox<SelectedPeriodModel>(HiveBoxes.selectedPeriod);
 
-
   runApp(const FinanceApp());
 }
 
@@ -40,10 +39,7 @@ class FinanceApp extends StatelessWidget {
     return MaterialApp(
       title: 'Finance App',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: Colors.green,
-      ),
+      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.green),
       home: const MainScreen(),
     );
   }

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 import '../../../core/constants/hive_boxes.dart';
-import '../../../data/models/income_model.dart';
 import '../../../data/models/expense_model.dart';
+import '../../../data/models/income_model.dart';
 
 class BalanceWidget extends StatelessWidget {
   const BalanceWidget({super.key});

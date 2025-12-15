@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../../data/models/dashboard_config_model.dart';
 import '../../../domain/entities/category_expense.dart';
 import '../../../domain/entities/dashboard_widget_type.dart';
+import '../../../domain/entities/monthly_summary.dart';
+import '../../../domain/entities/selected_period.dart';
 import '../../../domain/services/dashboard_config_service.dart';
 import '../../../domain/services/expenses_by_category_service.dart';
-import '../../../domain/services/selected_period_service.dart';
 import '../../../domain/services/monthly_summary_service.dart';
-import '../../../data/models/dashboard_config_model.dart';
-import '../../../domain/entities/selected_period.dart';
-import '../../../domain/entities/monthly_summary.dart';
+import '../../../domain/services/selected_period_service.dart';
 import '../../widgets/period_selector.dart';
 import 'balance_widget.dart';
 import 'dashboard_settings_screen.dart';
@@ -46,23 +46,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   /// Construye el widget según el tipo
   Widget _buildWidgetFromType(
-      DashboardWidgetType type,
-      MonthlySummary monthlySummary,
-      List<CategoryExpense> categoryExpenses,
-      ) {
+    DashboardWidgetType type,
+    MonthlySummary monthlySummary,
+    List<CategoryExpense> categoryExpenses,
+  ) {
     switch (type) {
       case DashboardWidgetType.balance:
         return const BalanceWidget();
 
       case DashboardWidgetType.expensesByCategory:
-        return ExpensesByCategoryPieWidget(
-          data: categoryExpenses,
-        );
+        return ExpensesByCategoryPieWidget(data: categoryExpenses);
 
       case DashboardWidgetType.incomeVsExpenses:
-        return IncomeVsExpensesBarWidget(
-          summary: monthlySummary,
-        );
+        return IncomeVsExpensesBarWidget(summary: monthlySummary);
     }
   }
 
@@ -76,10 +72,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final visibleConfigs = _visibleConfigs();
-    final categoryExpenses =
-    _expensesByCategoryService.calculateForPeriod(_selectedPeriod);
-    final monthlySummary = _monthlySummaryService
-        .calculateForMonthYear(_selectedPeriod.month, _selectedPeriod.year);
+    final categoryExpenses = _expensesByCategoryService.calculateForPeriod(
+      _selectedPeriod,
+    );
+    final monthlySummary = _monthlySummaryService.calculateForMonthYear(
+      _selectedPeriod.month,
+      _selectedPeriod.year,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -91,9 +90,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               final result = await Navigator.push<List<DashboardConfigModel>>(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => DashboardSettingsScreen(
-                    configs: _configs,
-                  ),
+                  builder: (_) => DashboardSettingsScreen(configs: _configs),
                 ),
               );
 
@@ -127,8 +124,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                     // Reaplicamos el orden a la lista completa
                     for (int i = 0; i < visibleConfigs.length; i++) {
-                      final indexInConfigs = _configs
-                          .indexWhere((c) => c.type == visibleConfigs[i].type);
+                      final indexInConfigs = _configs.indexWhere(
+                        (c) => c.type == visibleConfigs[i].type,
+                      );
 
                       _configs[indexInConfigs] = DashboardConfigModel(
                         type: _configs[indexInConfigs].type,
@@ -150,7 +148,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           _buildWidgetFromType(
                             config.type,
                             monthlySummary,
-                              categoryExpenses,
+                            categoryExpenses,
                           ),
                           const Positioned(
                             right: 8,

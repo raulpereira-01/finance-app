@@ -7,9 +7,7 @@ class MovementsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Movements')),
-      body: const Center(
-        child: Text('Listado de movimientos'),
-      ),
+      body: const Center(child: Text('Listado de movimientos')),
     );
   }
 }

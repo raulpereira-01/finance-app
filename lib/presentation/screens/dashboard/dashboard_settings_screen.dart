@@ -6,10 +6,7 @@ import '../../../domain/entities/dashboard_widget_type.dart';
 class DashboardSettingsScreen extends StatefulWidget {
   final List<DashboardConfigModel> configs;
 
-  const DashboardSettingsScreen({
-    super.key,
-    required this.configs,
-  });
+  const DashboardSettingsScreen({super.key, required this.configs});
 
   @override
   State<DashboardSettingsScreen> createState() =>
@@ -22,16 +19,17 @@ class _DashboardSettingsScreenState extends State<DashboardSettingsScreen> {
   @override
   void initState() {
     super.initState();
-    _configs = widget.configs
-        .map(
-          (c) => DashboardConfigModel(
-            type: c.type,
-            enabled: c.enabled,
-            order: c.order,
-          ),
-        )
-        .toList()
-      ..sort((a, b) => a.order.compareTo(b.order));
+    _configs =
+        widget.configs
+            .map(
+              (c) => DashboardConfigModel(
+                type: c.type,
+                enabled: c.enabled,
+                order: c.order,
+              ),
+            )
+            .toList()
+          ..sort((a, b) => a.order.compareTo(b.order));
   }
 
   IconData _iconForType(DashboardWidgetType type) {

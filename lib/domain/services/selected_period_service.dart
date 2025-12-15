@@ -1,12 +1,13 @@
 import 'package:hive/hive.dart';
 
 import '../../core/constants/hive_boxes.dart';
-import '../entities/selected_period.dart';
 import '../../data/models/selected_period_model.dart';
+import '../entities/selected_period.dart';
 
 class SelectedPeriodService {
-  final Box<SelectedPeriodModel> _box =
-      Hive.box<SelectedPeriodModel>(HiveBoxes.selectedPeriod);
+  final Box<SelectedPeriodModel> _box = Hive.box<SelectedPeriodModel>(
+    HiveBoxes.selectedPeriod,
+  );
 
   SelectedPeriod loadCurrent() {
     if (_box.isEmpty || !_box.containsKey('current')) {

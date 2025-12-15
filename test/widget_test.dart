@@ -5,18 +5,20 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:finance_app/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:finance_app/main.dart';
-
 void main() {
-  testWidgets('Onboarding welcome screen is displayed',
-      (WidgetTester tester) async {
+  testWidgets('Onboarding welcome screen is displayed', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(const FinanceApp());
 
     expect(find.text('Welcome 👋'), findsOneWidget);
-    expect(find.text('Let’s set up your finances in a few simple steps.'),
-        findsOneWidget);
+    expect(
+      find.text('Let’s set up your finances in a few simple steps.'),
+      findsOneWidget,
+    );
     expect(find.text('Start'), findsOneWidget);
   });
 }

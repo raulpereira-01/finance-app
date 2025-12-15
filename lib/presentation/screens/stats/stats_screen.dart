@@ -7,9 +7,7 @@ class StatsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Statistics')),
-      body: const Center(
-        child: Text('Indicadores y gráficos'),
-      ),
+      body: const Center(child: Text('Indicadores y gráficos')),
     );
   }
 }

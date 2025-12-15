@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+
 import '../../domain/entities/selected_period.dart';
 
 class SelectedPeriodModel extends HiveObject {
@@ -41,10 +42,8 @@ class SelectedPeriodModelAdapter extends TypeAdapter<SelectedPeriodModel> {
   SelectedPeriodModel read(BinaryReader reader) {
     final month = reader.readInt();
     final year = reader.readInt();
-    final startDate =
-    DateTime.fromMillisecondsSinceEpoch(reader.readInt());
-    final endDate =
-    DateTime.fromMillisecondsSinceEpoch(reader.readInt());
+    final startDate = DateTime.fromMillisecondsSinceEpoch(reader.readInt());
+    final endDate = DateTime.fromMillisecondsSinceEpoch(reader.readInt());
 
     return SelectedPeriodModel(
       month: month,

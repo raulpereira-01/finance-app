@@ -10,8 +10,7 @@ class OnboardingIncomeScreen extends StatefulWidget {
   const OnboardingIncomeScreen({super.key});
 
   @override
-  State<OnboardingIncomeScreen> createState() =>
-      _OnboardingIncomeScreenState();
+  State<OnboardingIncomeScreen> createState() => _OnboardingIncomeScreenState();
 }
 
 class _OnboardingIncomeScreenState extends State<OnboardingIncomeScreen> {
@@ -55,27 +54,22 @@ class _OnboardingIncomeScreenState extends State<OnboardingIncomeScreen> {
     final incomes = _incomeBox.values.toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Monthly income'),
-      ),
+      appBar: AppBar(title: const Text('Monthly income')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Income name',
-              ),
+              decoration: const InputDecoration(labelText: 'Income name'),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _amountController,
-              keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: 'Amount',
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
               ),
+              decoration: const InputDecoration(labelText: 'Amount'),
             ),
             const SizedBox(height: 12),
             SizedBox(
@@ -94,9 +88,7 @@ class _OnboardingIncomeScreenState extends State<OnboardingIncomeScreen> {
                   final income = incomes[index];
                   return ListTile(
                     title: Text(income.name),
-                    trailing: Text(
-                      income.amount.toStringAsFixed(2),
-                    ),
+                    trailing: Text(income.amount.toStringAsFixed(2)),
                   );
                 },
               ),
@@ -108,13 +100,13 @@ class _OnboardingIncomeScreenState extends State<OnboardingIncomeScreen> {
         onPressed: incomes.isEmpty
             ? null
             : () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const OnboardingFixedExpensesScreen(),
-            ),
-          );
-        },
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const OnboardingFixedExpensesScreen(),
+                  ),
+                );
+              },
         child: const Icon(Icons.arrow_forward),
       ),
     );

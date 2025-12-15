@@ -2,18 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 import '../../../core/constants/hive_boxes.dart';
-import '../../../data/models/income_model.dart';
 import '../../../data/models/expense_model.dart';
+import '../../../data/models/income_model.dart';
 import '../dashboard/dashboard_screen.dart';
 
 class OnboardingSummaryScreen extends StatelessWidget {
   const OnboardingSummaryScreen({super.key});
 
   double _totalIncome(Box<IncomeModel> incomeBox) {
-    return incomeBox.values.fold(
-      0,
-          (sum, item) => sum + item.amount,
-    );
+    return incomeBox.values.fold(0, (sum, item) => sum + item.amount);
   }
 
   double _totalFixedExpenses(Box<ExpenseModel> expenseBox) {
@@ -32,9 +29,7 @@ class OnboardingSummaryScreen extends StatelessWidget {
     final remaining = totalIncome - totalExpenses;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Summary'),
-      ),
+      appBar: AppBar(title: const Text('Summary')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -69,10 +64,8 @@ class OnboardingSummaryScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => const DashboardScreen(),
-                    ),
-                        (_) => false,
+                    MaterialPageRoute(builder: (_) => const DashboardScreen()),
+                    (_) => false,
                   );
                 },
                 child: const Text('Go to dashboard'),
@@ -112,10 +105,7 @@ class _SummaryRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label),
-          Text(
-            value.toStringAsFixed(2),
-            style: style,
-          ),
+          Text(value.toStringAsFixed(2), style: style),
         ],
       ),
     );

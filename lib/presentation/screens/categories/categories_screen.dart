@@ -6,7 +6,6 @@ import '../../../core/constants/hive_boxes.dart';
 import '../../../data/models/category_model.dart';
 import 'color_picker_dialog.dart';
 
-
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
 
@@ -51,33 +50,27 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     final categories = _categoryBox.values.toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Categories'),
-      ),
+      appBar: AppBar(title: const Text('Categories')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Category name',
-              ),
+              decoration: const InputDecoration(labelText: 'Category name'),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
                 DropdownButton<String>(
                   value: _selectedEmoji,
-                  items: const [
-                    '💸', '🏠', '🚗', '🍔', '📱', '🎮', '🎓'
-                  ]
+                  items: const ['💸', '🏠', '🚗', '🍔', '📱', '🎮', '🎓']
                       .map(
                         (e) => DropdownMenuItem(
-                      value: e,
-                      child: Text(e, style: const TextStyle(fontSize: 20)),
-                    ),
-                  )
+                          value: e,
+                          child: Text(e, style: const TextStyle(fontSize: 20)),
+                        ),
+                      )
                       .toList(),
                   onChanged: (value) {
                     if (value != null) {
@@ -90,17 +83,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   onTap: () async {
                     final color = await showDialog<Color>(
                       context: context,
-                      builder: (_) => ColorPickerDialog(
-                        selected: _selectedColor,
-                      ),
+                      builder: (_) =>
+                          ColorPickerDialog(selected: _selectedColor),
                     );
                     if (color != null) {
                       setState(() => _selectedColor = color);
                     }
                   },
-                  child: CircleAvatar(
-                    backgroundColor: _selectedColor,
-                  ),
+                  child: CircleAvatar(backgroundColor: _selectedColor),
                 ),
                 const Spacer(),
                 ElevatedButton(

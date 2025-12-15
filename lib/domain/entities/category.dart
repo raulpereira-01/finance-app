@@ -9,5 +9,5 @@ class Category {
     required this.name,
     required this.emoji,
     required this.colorValue,
-});
+  });
 }

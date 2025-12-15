@@ -16,10 +16,7 @@ class OnboardingWelcomeScreen extends StatelessWidget {
           children: [
             const Text(
               'Welcome 👋',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             const Text(

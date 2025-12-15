@@ -7,40 +7,33 @@ import '../entities/monthly_summary.dart';
 
 class MonthlySummaryService {
   final Box<IncomeModel> _incomeBox = Hive.box<IncomeModel>(HiveBoxes.incomes);
-  final Box<ExpenseModel> _expenseBox = Hive.box<ExpenseModel>(HiveBoxes.expenses);
+  final Box<ExpenseModel> _expenseBox = Hive.box<ExpenseModel>(
+    HiveBoxes.expenses,
+  );
 
   MonthlySummary calculateForMonthYear(int month, int year) {
-    final incomeTotal = _incomeBox.values.fold<double>(
-      0,
-          (sum, income) {
-        final sameMonth = income.date.month == month;
-        final sameYear = income.date.year == year;
+    final incomeTotal = _incomeBox.values.fold<double>(0, (sum, income) {
+      final sameMonth = income.date.month == month;
+      final sameYear = income.date.year == year;
 
-        if (sameMonth && sameYear) {
-          return sum + income.amount;
-        }
+      if (sameMonth && sameYear) {
+        return sum + income.amount;
+      }
 
-        return sum;
-      },
-    );
+      return sum;
+    });
 
-    final expensesTotal = _expenseBox.values.fold<double>(
-      0,
-          (sum, expense) {
-        final sameMonth = expense.date.month == month;
-        final sameYear = expense.date.year == year;
+    final expensesTotal = _expenseBox.values.fold<double>(0, (sum, expense) {
+      final sameMonth = expense.date.month == month;
+      final sameYear = expense.date.year == year;
 
-        if (sameMonth && sameYear) {
-          return sum + expense.amount;
-        }
+      if (sameMonth && sameYear) {
+        return sum + expense.amount;
+      }
 
-        return sum;
-      },
-    );
+      return sum;
+    });
 
-    return MonthlySummary(
-      income: incomeTotal,
-      expenses: expensesTotal,
-    );
+    return MonthlySummary(income: incomeTotal, expenses: expensesTotal);
   }
 }

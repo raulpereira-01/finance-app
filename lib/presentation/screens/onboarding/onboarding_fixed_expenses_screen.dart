@@ -3,8 +3,8 @@ import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/constants/hive_boxes.dart';
-import '../../../data/models/expense_model.dart';
 import '../../../data/models/category_model.dart';
+import '../../../data/models/expense_model.dart';
 import 'onboarding_summary_screen.dart';
 
 class OnboardingFixedExpensesScreen extends StatefulWidget {
@@ -31,7 +31,6 @@ class _OnboardingFixedExpensesScreenState
     _expenseBox = Hive.box<ExpenseModel>(HiveBoxes.expenses);
     _categoryBox = Hive.box<CategoryModel>(HiveBoxes.categories);
   }
-
 
   void _addExpense() {
     final name = _nameController.text.trim();
@@ -62,33 +61,27 @@ class _OnboardingFixedExpensesScreenState
 
   @override
   Widget build(BuildContext context) {
-    final expenses =
-    _expenseBox.values.where((e) => e.isFixed).toList();
+    final expenses = _expenseBox.values.where((e) => e.isFixed).toList();
 
     final categories = _categoryBox.values.toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Fixed expenses'),
-      ),
+      appBar: AppBar(title: const Text('Fixed expenses')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Expense name',
-              ),
+              decoration: const InputDecoration(labelText: 'Expense name'),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _amountController,
-              keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: 'Amount',
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
               ),
+              decoration: const InputDecoration(labelText: 'Amount'),
             ),
             DropdownButtonFormField<String>(
               value: _selectedCategoryId,
@@ -145,13 +138,13 @@ class _OnboardingFixedExpensesScreenState
         onPressed: expenses.isEmpty
             ? null
             : () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const OnboardingSummaryScreen(),
-            ),
-          );
-        },
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const OnboardingSummaryScreen(),
+                  ),
+                );
+              },
         child: const Icon(Icons.arrow_forward),
       ),
     );

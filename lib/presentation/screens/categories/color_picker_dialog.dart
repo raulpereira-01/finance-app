@@ -25,10 +25,10 @@ class ColorPickerDialog extends StatelessWidget {
         children: colors
             .map(
               (color) => GestureDetector(
-            onTap: () => Navigator.pop(context, color),
-            child: CircleAvatar(backgroundColor: color),
-          ),
-        )
+                onTap: () => Navigator.pop(context, color),
+                child: CircleAvatar(backgroundColor: color),
+              ),
+            )
             .toList(),
       ),
     );

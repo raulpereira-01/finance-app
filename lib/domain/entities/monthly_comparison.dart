@@ -2,10 +2,7 @@ class MonthlyComparison {
   final double current;
   final double previous;
 
-  const MonthlyComparison({
-    required this.current,
-    required this.previous,
-  });
+  const MonthlyComparison({required this.current, required this.previous});
 
   double get difference => current - previous;
 

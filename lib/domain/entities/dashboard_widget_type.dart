@@ -1,8 +1,4 @@
-enum DashboardWidgetType {
-  balance,
-  expensesByCategory,
-  incomeVsExpenses,
-}
+enum DashboardWidgetType { balance, expensesByCategory, incomeVsExpenses }
 
 extension DashboardWidgetTypeX on DashboardWidgetType {
   String get title {

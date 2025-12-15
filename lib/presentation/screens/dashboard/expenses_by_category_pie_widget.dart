@@ -6,10 +6,7 @@ import '../../../domain/entities/category_expense.dart';
 class ExpensesByCategoryPieWidget extends StatelessWidget {
   final List<CategoryExpense> data;
 
-  const ExpensesByCategoryPieWidget({
-    super.key,
-    required this.data,
-  });
+  const ExpensesByCategoryPieWidget({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
