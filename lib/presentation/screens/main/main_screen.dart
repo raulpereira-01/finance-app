@@ -3,6 +3,8 @@ import 'package:finance_app/presentation/screens/movements/movements_screen.dart
 import 'package:finance_app/presentation/screens/settings/settings_screen.dart';
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -29,24 +31,26 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
         onTap: _onItemTapped,
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
-            label: 'Home',
+            label: l10n.homeTitle,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list_alt),
-            label: 'Plan',
+            label: l10n.planTitle,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
-            label: 'Settings',
+            label: l10n.settingsTitle,
           ),
         ],
       ),

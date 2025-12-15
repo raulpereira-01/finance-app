@@ -4,6 +4,7 @@ import '../../../domain/entities/selected_period.dart';
 import '../../../domain/services/expenses_by_category_service.dart';
 import '../../../domain/services/monthly_summary_service.dart';
 import '../../../domain/services/selected_period_service.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/period_selector.dart';
 import '../dashboard/expenses_by_category_pie_widget.dart';
 import '../dashboard/income_vs_expenses_bar_widget.dart';
@@ -37,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final monthlySummary = _monthlySummaryService.calculateForMonthYear(
       _selectedPeriod.month,
       _selectedPeriod.year,
@@ -50,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final balanceColor = isPositive ? Colors.green : Colors.red;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Inicio')),
+      appBar: AppBar(title: Text(l10n.homeTitle)),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -69,25 +71,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Ingresos',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
+                        Text(l10n.periodIncome,
+                            style: const TextStyle(fontWeight: FontWeight.w600)),
                         Text(monthlySummary.income.toStringAsFixed(2)),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Gastos',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
+                        Text(l10n.periodExpenses,
+                            style: const TextStyle(fontWeight: FontWeight.w600)),
                         Text(monthlySummary.expenses.toStringAsFixed(2)),
                       ],
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        const Text(
-                          'Balance',
-                          style: TextStyle(fontWeight: FontWeight.w600),
+                        Text(
+                          l10n.balance,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         Text(
                           balance.toStringAsFixed(2),
@@ -99,8 +97,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         Text(
                           isPositive
-                              ? 'Buen ritmo de ahorro'
-                              : 'Revisa tus gastos fijos',
+                              ? l10n.positiveBalanceHint
+                              : l10n.negativeBalanceHint,
                           style: TextStyle(color: balanceColor),
                         ),
                       ],

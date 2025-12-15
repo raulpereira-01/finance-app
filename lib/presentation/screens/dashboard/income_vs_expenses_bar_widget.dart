@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/monthly_summary.dart';
+import '../../../l10n/app_localizations.dart';
 
 class IncomeVsExpensesBarWidget extends StatelessWidget {
   final MonthlySummary summary;
@@ -10,11 +11,13 @@ class IncomeVsExpensesBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     if (summary.isEmpty) {
-      return const Card(
+      return Card(
         child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Text('No income or expenses for this period'),
+          padding: const EdgeInsets.all(20),
+          child: Text(l10n.incomeVsExpensesEmpty),
         ),
       );
     }
@@ -22,7 +25,7 @@ class IncomeVsExpensesBarWidget extends StatelessWidget {
     final maxValue = summary.income > summary.expenses
         ? summary.income
         : summary.expenses;
-    final chartMaxY = maxValue == 0 ? 1.0 : maxValue * 1.2;
+    final chartMaxY = maxValue <= 0 ? 1.0 : maxValue * 1.2;
 
     return Card(
       child: Padding(
@@ -30,15 +33,51 @@ class IncomeVsExpensesBarWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Income vs expenses',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            Text(
+              l10n.incomeVsExpensesTitle,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _LegendDot(
+                  color: Colors.green,
+                  label: '${l10n.chartIncomeLabel}: ' +
+                      summary.income.toStringAsFixed(2),
+                ),
+                _LegendDot(
+                  color: Colors.red,
+                  label: '${l10n.chartExpensesLabel}: ' +
+                      summary.expenses.toStringAsFixed(2),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
             SizedBox(
               height: 220,
               child: BarChart(
                 BarChartData(
+                  barTouchData: BarTouchData(
+                    enabled: true,
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipItem: (
+                        group,
+                        groupIndex,
+                        rod,
+                        rodIndex,
+                      ) {
+                        final isIncome = group.x == 0;
+                        final label = isIncome
+                            ? l10n.chartIncomeLabel
+                            : l10n.chartExpensesLabel;
+                        return BarTooltipItem(
+                          '$label\n${rod.toY.toStringAsFixed(2)}',
+                          const TextStyle(color: Colors.white),
+                        );
+                      },
+                    ),
+                  ),
                   alignment: BarChartAlignment.spaceAround,
                   maxY: chartMaxY,
                   gridData: const FlGridData(show: false),
@@ -62,9 +101,9 @@ class IncomeVsExpensesBarWidget extends StatelessWidget {
                         getTitlesWidget: (value, meta) {
                           switch (value.toInt()) {
                             case 0:
-                              return const Text('Income');
+                              return Text(l10n.chartIncomeLabel);
                             case 1:
-                              return const Text('Expenses');
+                              return Text(l10n.chartExpensesLabel);
                             default:
                               return const SizedBox.shrink();
                           }
@@ -102,6 +141,32 @@ class IncomeVsExpensesBarWidget extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _LegendDot({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(label),
+      ],
     );
   }
 }
