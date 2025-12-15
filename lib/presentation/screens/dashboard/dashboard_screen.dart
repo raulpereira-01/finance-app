@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import '../../../domain/entities/dashboard_widget_type.dart';
 import '../../../domain/services/dashboard_config_service.dart';
 import '../../../domain/services/selected_period_service.dart';
+import '../../../domain/services/monthly_summary_service.dart';
 import '../../../data/models/dashboard_config_model.dart';
 import '../../../domain/entities/selected_period.dart';
+import '../../../domain/entities/monthly_summary.dart';
 import '../../widgets/period_selector.dart';
 import 'balance_widget.dart';
 import 'dashboard_settings_screen.dart';
 import 'expenses_by_category_pie_widget.dart';
+import 'income_vs_expenses_bar_widget.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -21,6 +24,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   late List<DashboardConfigModel> _configs;
   final _configService = DashboardConfigService();
   final _selectedPeriodService = SelectedPeriodService();
+  final _monthlySummaryService = MonthlySummaryService();
   late SelectedPeriod _selectedPeriod;
 
   @override
@@ -38,14 +42,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   /// Construye el widget según el tipo
-  Widget _buildWidgetFromType(DashboardWidgetType type) {
+  Widget _buildWidgetFromType(
+    DashboardWidgetType type,
+    MonthlySummary monthlySummary,
+  ) {
     switch (type) {
       case DashboardWidgetType.balance:
         return const BalanceWidget();
       case DashboardWidgetType.expensesByCategory:
         return const ExpensesByCategoryPieWidget();
       case DashboardWidgetType.incomeVsExpenses:
-        return const Placeholder();
+        return IncomeVsExpensesBarWidget(summary: monthlySummary);
     }
   }
 
@@ -59,6 +66,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final visibleConfigs = _visibleConfigs();
+    final monthlySummary = _monthlySummaryService
+        .calculateForMonthYear(_selectedPeriod.month, _selectedPeriod.year);
 
     return Scaffold(
       appBar: AppBar(
@@ -126,7 +135,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       margin: const EdgeInsets.only(bottom: 12),
                       child: Stack(
                         children: [
-                          _buildWidgetFromType(config.type),
+                          _buildWidgetFromType(
+                            config.type,
+                            monthlySummary,
+                          ),
                           const Positioned(
                             right: 8,
                             top: 8,
