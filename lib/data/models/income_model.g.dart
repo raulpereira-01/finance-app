@@ -20,14 +20,15 @@ class IncomeModelAdapter extends TypeAdapter<IncomeModel> {
       id: fields[0] as String,
       name: fields[1] as String,
       amount: fields[2] as double,
-      date: fields[3] as DateTime,
+      startDate: fields[3] as DateTime,
+      dayOfMonth: (fields[4] as int?) ?? (fields[3] as DateTime).day,
     );
   }
 
   @override
   void write(BinaryWriter writer, IncomeModel obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class IncomeModelAdapter extends TypeAdapter<IncomeModel> {
       ..writeByte(2)
       ..write(obj.amount)
       ..writeByte(3)
-      ..write(obj.date);
+      ..write(obj.startDate)
+      ..writeByte(4)
+      ..write(obj.dayOfMonth);
   }
 
   @override

@@ -12,22 +12,31 @@ class MonthlySummaryService {
   );
 
   MonthlySummary calculateForMonthYear(int month, int year) {
+    final periodEnd = DateTime(year, month + 1, 0);
+    final lastDayOfMonth = periodEnd.day;
+
     final incomeTotal = _incomeBox.values.fold<double>(0, (sum, income) {
-      final sameMonth = income.date.month == month;
-      final sameYear = income.date.year == year;
+      final started = !income.startDate.isAfter(periodEnd);
 
-      if (sameMonth && sameYear) {
-        return sum + income.amount;
-      }
-
-      return sum;
+      return started ? sum + income.amount : sum;
     });
 
     final expensesTotal = _expenseBox.values.fold<double>(0, (sum, expense) {
+      if (expense.isRecurring) {
+        final startDate = expense.startDate ?? expense.date;
+        final started = !startDate.isAfter(periodEnd);
+
+        return started ? sum + expense.amount : sum;
+      }
+
+      final periodStart = DateTime(year, month, 1);
       final sameMonth = expense.date.month == month;
       final sameYear = expense.date.year == year;
+      final sameOrAfterStart = !expense.date.isBefore(periodStart);
+      final sameOrBeforeEnd = !expense.date
+          .isAfter(DateTime(year, month, lastDayOfMonth));
 
-      if (sameMonth && sameYear) {
+      if (sameMonth && sameYear && sameOrAfterStart && sameOrBeforeEnd) {
         return sum + expense.amount;
       }
 

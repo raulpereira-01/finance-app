@@ -1,9 +1,9 @@
-import 'package:finance_app/presentation/screens/dashboard/dashboard_screen.dart';
 import 'package:finance_app/presentation/screens/home/home_screen.dart';
 import 'package:finance_app/presentation/screens/movements/movements_screen.dart';
 import 'package:finance_app/presentation/screens/settings/settings_screen.dart';
-import 'package:finance_app/presentation/screens/stats/stats_screen.dart';
 import 'package:flutter/material.dart';
+
+import '../../../l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -13,15 +13,13 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  // El Dashboard arranca seleccionado para mantenerlo como pestaña principal centrada.
-  int _currentIndex = 2;
+  // Simplificamos la navegación a tres pestañas centradas en el flujo principal.
+  int _currentIndex = 0;
 
   // El IndexedStack conserva el estado de cada pestaña sin recrear sus contenidos.
   final List<Widget> _pages = const <Widget>[
     HomeScreen(),
     MovementsScreen(),
-    DashboardScreen(),
-    StatsScreen(),
     SettingsScreen(),
   ];
 
@@ -33,32 +31,26 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
         onTap: _onItemTapped,
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
-            label: 'Home',
+            label: l10n.homeTitle,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list_alt),
-            label: 'Movements',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard, size: 32),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: 'Statistics',
+            label: l10n.planTitle,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
-            label: 'Settings',
+            label: l10n.settingsTitle,
           ),
         ],
       ),

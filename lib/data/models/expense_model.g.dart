@@ -23,13 +23,16 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
       date: fields[3] as DateTime,
       isFixed: fields[4] as bool,
       categoryId: fields[5] as String,
+      isRecurring: fields[6] as bool? ?? false,
+      dayOfMonth: fields[7] as int?,
+      startDate: fields[8] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ExpenseModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -41,7 +44,13 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
       ..writeByte(4)
       ..write(obj.isFixed)
       ..writeByte(5)
-      ..write(obj.categoryId);
+      ..write(obj.categoryId)
+      ..writeByte(6)
+      ..write(obj.isRecurring)
+      ..writeByte(7)
+      ..write(obj.dayOfMonth)
+      ..writeByte(8)
+      ..write(obj.startDate);
   }
 
   @override

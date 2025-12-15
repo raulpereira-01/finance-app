@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 import '../../core/constants/hive_boxes.dart';
@@ -15,10 +16,37 @@ class ExpensesByCategoryService {
   );
 
   List<CategoryExpense> calculateForPeriod(SelectedPeriod period) {
-    final expenses = _expenseBox.values.where((expense) {
-      return expense.date.isAfter(period.startDate) &&
-          expense.date.isBefore(period.endDate);
-    });
+    final inclusiveExpenses = _expenseBox.values.where((expense) {
+      final afterStart = !expense.date.isBefore(period.startDate);
+      final beforeEnd = !expense.date.isAfter(period.endDate);
+
+      return afterStart && beforeEnd && !expense.isRecurring;
+    }).toList();
+
+    final recurringExpenses = _expenseBox.values.where((expense) {
+      if (!expense.isRecurring) return false;
+
+      final startDate = expense.startDate ?? expense.date;
+      return !startDate.isAfter(period.endDate);
+    }).map((expense) {
+      final targetDay = expense.dayOfMonth ?? expense.date.day;
+      final lastDayOfMonth = period.endDate.day;
+      final safeDay = targetDay > lastDayOfMonth ? lastDayOfMonth : targetDay;
+
+      return ExpenseModel(
+        id: expense.id,
+        name: expense.name,
+        amount: expense.amount,
+        date: DateTime(period.year, period.month, safeDay),
+        isFixed: expense.isFixed,
+        categoryId: expense.categoryId,
+        isRecurring: expense.isRecurring,
+        dayOfMonth: expense.dayOfMonth,
+        startDate: expense.startDate,
+      );
+    }).toList();
+
+    final expenses = [...inclusiveExpenses, ...recurringExpenses];
 
     final Map<String, double> totalsByCategory = {};
 
@@ -33,7 +61,15 @@ class ExpensesByCategoryService {
     final categories = _categoryBox.values.toList();
 
     return totalsByCategory.entries.map((entry) {
-      final category = categories.firstWhere((c) => c.id == entry.key);
+      final category = categories.firstWhere(
+        (c) => c.id == entry.key,
+        orElse: () => CategoryModel(
+          id: entry.key,
+          name: 'Sin categoría',
+          emoji: '❓',
+          colorValue: Colors.grey.value,
+        ),
+      );
 
       return CategoryExpense(
         categoryId: category.id,

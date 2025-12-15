@@ -22,6 +22,17 @@ class ExpenseModel extends HiveObject {
   @HiveField(5)
   final String categoryId;
 
+  @HiveField(6)
+  final bool isRecurring;
+
+  /// Día del mes en el que se repite el gasto recurrente
+  @HiveField(7)
+  final int? dayOfMonth;
+
+  /// Fecha desde la que comienza a repetirse (incluida)
+  @HiveField(8)
+  final DateTime? startDate;
+
   ExpenseModel({
     required this.id,
     required this.name,
@@ -29,5 +40,8 @@ class ExpenseModel extends HiveObject {
     required this.date,
     required this.isFixed,
     required this.categoryId,
+    this.isRecurring = false,
+    this.dayOfMonth,
+    this.startDate,
   });
 }
