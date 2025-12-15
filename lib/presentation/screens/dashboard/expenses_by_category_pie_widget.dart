@@ -1,59 +1,36 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 
-import '../../../core/constants/hive_boxes.dart';
-import '../../../data/models/category_model.dart';
-import '../../../data/models/expense_model.dart';
+import '../../../domain/entities/category_expense.dart';
 
 class ExpensesByCategoryPieWidget extends StatelessWidget {
-  const ExpensesByCategoryPieWidget({super.key});
+  final List<CategoryExpense> data;
+
+  const ExpensesByCategoryPieWidget({
+    super.key,
+    required this.data,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final expenseBox = Hive.box<ExpenseModel>(HiveBoxes.expenses);
-    final categoryBox = Hive.box<CategoryModel>(HiveBoxes.categories);
-
-    final expenses = expenseBox.values.toList();
-    final categories = categoryBox.values.toList();
-
-    if (expenses.isEmpty || categories.isEmpty) {
+    if (data.isEmpty) {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(20),
-          child: Text('No expenses to display'),
+          child: Text('No expenses for this period'),
         ),
       );
     }
 
-    final Map<String, double> totalsByCategory = {};
-
-    for (final expense in expenses) {
-      totalsByCategory.update(
-        expense.categoryId,
-            (value) => value + expense.amount,
-        ifAbsent: () => expense.amount,
-      );
-    }
-
-    final sections = totalsByCategory.entries.map((entry) {
-      final category = categories
-          .where((c) => c.id == entry.key)
-          .cast<CategoryModel?>()
-          .firstWhere((c) => c != null, orElse: () => null);
-
-      if (category == null) {
-        return null;
-      }
-
+    final sections = data.map((item) {
       return PieChartSectionData(
-        value: entry.value,
-        color: Color(category.colorValue),
-        title: category.emoji,
+        value: item.total,
+        color: Color(item.colorValue),
+        title: item.emoji,
         radius: 50,
         titleStyle: const TextStyle(fontSize: 18),
       );
-    }).whereType<PieChartSectionData>().toList();
+    }).toList();
 
     return Card(
       child: Padding(

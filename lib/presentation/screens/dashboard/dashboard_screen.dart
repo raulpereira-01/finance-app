@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../domain/entities/category_expense.dart';
 import '../../../domain/entities/dashboard_widget_type.dart';
 import '../../../domain/services/dashboard_config_service.dart';
+import '../../../domain/services/expenses_by_category_service.dart';
 import '../../../domain/services/selected_period_service.dart';
 import '../../../domain/services/monthly_summary_service.dart';
 import '../../../data/models/dashboard_config_model.dart';
@@ -25,6 +27,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final _configService = DashboardConfigService();
   final _selectedPeriodService = SelectedPeriodService();
   final _monthlySummaryService = MonthlySummaryService();
+  final _expensesByCategoryService = ExpensesByCategoryService();
   late SelectedPeriod _selectedPeriod;
 
   @override
@@ -43,16 +46,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   /// Construye el widget según el tipo
   Widget _buildWidgetFromType(
-    DashboardWidgetType type,
-    MonthlySummary monthlySummary,
-  ) {
+      DashboardWidgetType type,
+      MonthlySummary monthlySummary,
+      List<CategoryExpense> categoryExpenses,
+      ) {
     switch (type) {
       case DashboardWidgetType.balance:
         return const BalanceWidget();
+
       case DashboardWidgetType.expensesByCategory:
-        return const ExpensesByCategoryPieWidget();
+        return ExpensesByCategoryPieWidget(
+          data: categoryExpenses,
+        );
+
       case DashboardWidgetType.incomeVsExpenses:
-        return IncomeVsExpensesBarWidget(summary: monthlySummary);
+        return IncomeVsExpensesBarWidget(
+          summary: monthlySummary,
+        );
     }
   }
 
@@ -66,6 +76,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final visibleConfigs = _visibleConfigs();
+    final categoryExpenses =
+    _expensesByCategoryService.calculateForPeriod(_selectedPeriod);
     final monthlySummary = _monthlySummaryService
         .calculateForMonthYear(_selectedPeriod.month, _selectedPeriod.year);
 
@@ -138,6 +150,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           _buildWidgetFromType(
                             config.type,
                             monthlySummary,
+                              categoryExpenses,
                           ),
                           const Positioned(
                             right: 8,
