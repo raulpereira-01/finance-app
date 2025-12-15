@@ -1,10 +1,10 @@
 import 'package:finance_app/core/constants/hive_boxes.dart';
+import 'package:finance_app/data/models/dashboard_config_model.dart';
 import 'package:finance_app/data/models/category_model.dart';
 import 'package:finance_app/data/models/expense_model.dart';
 import 'package:finance_app/data/models/income_model.dart';
-import 'package:finance_app/data/models/dashboard_config_model.dart';
 import 'package:finance_app/data/models/selected_period_model.dart';
-import 'package:finance_app/presentation/screens/onboarding/onboarding_welcome_screen.dart';
+import 'package:finance_app/presentation/screens/main/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -44,7 +44,7 @@ class FinanceApp extends StatelessWidget {
         useMaterial3: true,
         colorSchemeSeed: Colors.green,
       ),
-      home: const OnboardingWelcomeScreen(),
+      home: const MainScreen(),
     );
   }
 }
