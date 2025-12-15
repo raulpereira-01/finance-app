@@ -5,9 +5,9 @@ class MovementsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      appBar: AppBar(title: Text('Movements')),
-      body: Center(
+    return Scaffold(
+      appBar: AppBar(title: const Text('Movements')),
+      body: const Center(
         child: Text('Listado de movimientos'),
       ),
     );

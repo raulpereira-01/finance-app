@@ -41,8 +41,10 @@ class SelectedPeriodModelAdapter extends TypeAdapter<SelectedPeriodModel> {
   SelectedPeriodModel read(BinaryReader reader) {
     final month = reader.readInt();
     final year = reader.readInt();
-    final startDate = reader.readDateTime();
-    final endDate = reader.readDateTime();
+    final startDate =
+    DateTime.fromMillisecondsSinceEpoch(reader.readInt());
+    final endDate =
+    DateTime.fromMillisecondsSinceEpoch(reader.readInt());
 
     return SelectedPeriodModel(
       month: month,
@@ -56,7 +58,7 @@ class SelectedPeriodModelAdapter extends TypeAdapter<SelectedPeriodModel> {
   void write(BinaryWriter writer, SelectedPeriodModel obj) {
     writer.writeInt(obj.month);
     writer.writeInt(obj.year);
-    writer.writeDateTime(obj.startDate);
-    writer.writeDateTime(obj.endDate);
+    writer.writeInt(obj.startDate.millisecondsSinceEpoch);
+    writer.writeInt(obj.endDate.millisecondsSinceEpoch);
   }
 }
