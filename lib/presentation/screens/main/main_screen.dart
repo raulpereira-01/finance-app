@@ -1,8 +1,6 @@
-import 'package:finance_app/presentation/screens/dashboard/dashboard_screen.dart';
 import 'package:finance_app/presentation/screens/home/home_screen.dart';
 import 'package:finance_app/presentation/screens/movements/movements_screen.dart';
 import 'package:finance_app/presentation/screens/settings/settings_screen.dart';
-import 'package:finance_app/presentation/screens/stats/stats_screen.dart';
 import 'package:flutter/material.dart';
 
 class MainScreen extends StatefulWidget {
@@ -13,15 +11,13 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  // El Dashboard arranca seleccionado para mantenerlo como pestaña principal centrada.
-  int _currentIndex = 2;
+  // Simplificamos la navegación a tres pestañas centradas en el flujo principal.
+  int _currentIndex = 0;
 
   // El IndexedStack conserva el estado de cada pestaña sin recrear sus contenidos.
   final List<Widget> _pages = const <Widget>[
     HomeScreen(),
     MovementsScreen(),
-    DashboardScreen(),
-    StatsScreen(),
     SettingsScreen(),
   ];
 
@@ -47,14 +43,6 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.list_alt),
             label: 'Plan',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard, size: 32),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: 'Statistics',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
