@@ -59,7 +59,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => DashboardSettingsScreen(
-                    configs: _configs, enabledWidgets: {},
+                    configs: _configs,
                   ),
                 ),
               );

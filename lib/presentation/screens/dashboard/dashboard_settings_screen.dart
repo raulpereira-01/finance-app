@@ -23,12 +23,26 @@ class _DashboardSettingsScreenState extends State<DashboardSettingsScreen> {
   void initState() {
     super.initState();
     _configs = widget.configs
-        .map((c) => DashboardConfigModel(
-      type: c.type,
-      enabled: c.enabled,
-      order: c.order,
-    ))
-        .toList();
+        .map(
+          (c) => DashboardConfigModel(
+            type: c.type,
+            enabled: c.enabled,
+            order: c.order,
+          ),
+        )
+        .toList()
+      ..sort((a, b) => a.order.compareTo(b.order));
+  }
+
+  IconData _iconForType(DashboardWidgetType type) {
+    switch (type) {
+      case DashboardWidgetType.balance:
+        return Icons.account_balance_wallet_outlined;
+      case DashboardWidgetType.expensesByCategory:
+        return Icons.pie_chart_outline;
+      case DashboardWidgetType.incomeVsExpenses:
+        return Icons.stacked_line_chart;
+    }
   }
 
   @override
@@ -36,31 +50,35 @@ class _DashboardSettingsScreenState extends State<DashboardSettingsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Customize dashboard'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, _configs),
+            child: const Text('Save'),
+          ),
+        ],
       ),
-      body: ListView(
-        children: DashboardWidgetType.values.map((type) {
-          final index = _configs.indexWhere((c) => c.type == type);
+      body: ListView.separated(
+        itemCount: _configs.length,
+        separatorBuilder: (_, __) => const Divider(height: 1),
+        itemBuilder: (context, index) {
           final config = _configs[index];
 
-          return SwitchListTile(
-            title: Text(type.title),
-            value: config.enabled,
-            onChanged: (value) {
-              setState(() {
-                _configs[index] = DashboardConfigModel(
-                  type: config.type,
-                  enabled: value,
-                  order: config.order,
-                );
-              });
-            },
+          return ListTile(
+            leading: Icon(_iconForType(config.type)),
+            title: Text(config.type.title),
+            trailing: Switch(
+              value: config.enabled,
+              onChanged: (value) {
+                setState(() {
+                  _configs[index] = DashboardConfigModel(
+                    type: config.type,
+                    enabled: value,
+                    order: config.order,
+                  );
+                });
+              },
+            ),
           );
-        }).toList(),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.check),
-        onPressed: () {
-          Navigator.pop(context, _configs);
         },
       ),
     );
