@@ -13,9 +13,13 @@ class IncomeModel extends HiveObject {
   @HiveField(2)
   final double amount;
 
+  @HiveField(3)
+  final DateTime date;
+
   IncomeModel({
     required this.id,
     required this.name,
     required this.amount,
+    required this.date,
   });
 }

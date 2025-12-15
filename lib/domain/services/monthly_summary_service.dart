@@ -12,12 +12,21 @@ class MonthlySummaryService {
   MonthlySummary calculateForMonthYear(int month, int year) {
     final incomeTotal = _incomeBox.values.fold<double>(
       0,
-      (sum, income) => sum + income.amount,
+          (sum, income) {
+        final sameMonth = income.date.month == month;
+        final sameYear = income.date.year == year;
+
+        if (sameMonth && sameYear) {
+          return sum + income.amount;
+        }
+
+        return sum;
+      },
     );
 
     final expensesTotal = _expenseBox.values.fold<double>(
       0,
-      (sum, expense) {
+          (sum, expense) {
         final sameMonth = expense.date.month == month;
         final sameYear = expense.date.year == year;
 
@@ -29,6 +38,9 @@ class MonthlySummaryService {
       },
     );
 
-    return MonthlySummary(income: incomeTotal, expenses: expensesTotal);
+    return MonthlySummary(
+      income: incomeTotal,
+      expenses: expensesTotal,
+    );
   }
 }

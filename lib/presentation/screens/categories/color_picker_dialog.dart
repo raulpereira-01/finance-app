@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ColorPickerDialog extends StatelessWidget {
   final Color selected;
 
-  const ColorPickerDialog({required this.selected});
+  const ColorPickerDialog({super.key, required this.selected});
 
   @override
   Widget build(BuildContext context) {

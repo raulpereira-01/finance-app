@@ -59,7 +59,7 @@ class _DashboardSettingsScreenState extends State<DashboardSettingsScreen> {
       ),
       body: ListView.separated(
         itemCount: _configs.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
+        separatorBuilder: (_, _) => const Divider(height: 1),
         itemBuilder: (context, index) {
           final config = _configs[index];
 

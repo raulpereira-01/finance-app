@@ -39,6 +39,7 @@ class _OnboardingIncomeScreenState extends State<OnboardingIncomeScreen> {
       id: _uuid.v4(),
       name: name,
       amount: amount,
+      date: DateTime.now(),
     );
 
     _incomeBox.put(income.id, income);
