@@ -49,6 +49,9 @@ class _OnboardingFixedExpensesScreenState
       date: DateTime.now(),
       isFixed: true,
       categoryId: _selectedCategoryId!,
+      isRecurring: true,
+      dayOfMonth: DateTime.now().day,
+      startDate: DateTime.now(),
     );
 
     _expenseBox.put(expense.id, expense);

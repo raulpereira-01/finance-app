@@ -31,6 +31,8 @@ class _MovementsScreenState extends State<MovementsScreen> {
   DateTime _selectedExpenseDate = DateTime.now();
   String? _selectedCategoryId;
   bool _isFixedExpense = false;
+  bool _isRecurringExpense = false;
+  int _expenseDay = DateTime.now().day;
 
   late Box<IncomeModel> _incomeBox;
   late Box<CategoryModel> _categoryBox;
@@ -104,8 +106,31 @@ class _MovementsScreenState extends State<MovementsScreen> {
     );
 
     if (result != null) {
-      setState(() => _selectedExpenseDate = result);
+      setState(() {
+        _selectedExpenseDate = result;
+        _expenseDay = result.day;
+      });
     }
+  }
+
+  Future<void> _showMissingCategoryDialog({required bool noCategories}) async {
+    final message = noCategories
+        ? 'Primero crea una categoría para poder registrar tus gastos.'
+        : 'Selecciona una categoría antes de guardar el gasto.';
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Categorías'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Entendido'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _addExpense() {
@@ -113,7 +138,10 @@ class _MovementsScreenState extends State<MovementsScreen> {
     final amount = double.tryParse(_expenseAmountController.text);
 
     if (name.isEmpty || amount == null || amount <= 0) return;
-    if (_selectedCategoryId == null) return;
+    if (_selectedCategoryId == null) {
+      _showMissingCategoryDialog(noCategories: false);
+      return;
+    }
 
     final expense = ExpenseModel(
       id: _uuid.v4(),
@@ -122,6 +150,9 @@ class _MovementsScreenState extends State<MovementsScreen> {
       date: _selectedExpenseDate,
       isFixed: _isFixedExpense,
       categoryId: _selectedCategoryId!,
+      isRecurring: _isRecurringExpense,
+      dayOfMonth: _isRecurringExpense ? _expenseDay : null,
+      startDate: _isRecurringExpense ? _selectedExpenseDate : null,
     );
 
     _expenseBox.put(expense.id, expense);
@@ -129,6 +160,8 @@ class _MovementsScreenState extends State<MovementsScreen> {
     _expenseNameController.clear();
     _expenseAmountController.clear();
     _isFixedExpense = false;
+    _isRecurringExpense = false;
+    _expenseDay = DateTime.now().day;
 
     setState(() {});
   }
@@ -232,6 +265,15 @@ class _MovementsScreenState extends State<MovementsScreen> {
     final expenses = _expenseBox.values.toList()
       ..sort((a, b) => b.date.compareTo(a.date));
 
+    void attemptAddExpense() {
+      if (categories.isEmpty) {
+        _showMissingCategoryDialog(noCategories: true);
+        return;
+      }
+
+      _addExpense();
+    }
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -272,6 +314,27 @@ class _MovementsScreenState extends State<MovementsScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
+                if (_isRecurringExpense)
+                  DropdownButtonFormField<int>(
+                    value: _expenseDay,
+                    decoration: const InputDecoration(
+                      labelText: 'Se repite cada mes el día…',
+                    ),
+                    items: List.generate(31, (index) => index + 1)
+                        .map(
+                          (day) => DropdownMenuItem(
+                            value: day,
+                            child: Text('Día $day de cada mes'),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _expenseDay = value);
+                      }
+                    },
+                  ),
+                if (_isRecurringExpense) const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   value: _selectedCategoryId,
                   hint: const Text('Selecciona categoría'),
@@ -305,23 +368,27 @@ class _MovementsScreenState extends State<MovementsScreen> {
                   value: _isFixedExpense,
                   onChanged: (value) => setState(() => _isFixedExpense = value),
                 ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Repetir automáticamente cada mes'),
+                  value: _isRecurringExpense,
+                  onChanged: (value) => setState(() {
+                    _isRecurringExpense = value;
+                    if (value) {
+                      _expenseDay = _selectedExpenseDate.day;
+                    }
+                  }),
+                  subtitle: const Text('Ideal para alquileres, suscripciones, etc.'),
+                ),
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: categories.isEmpty ? null : _addExpense,
+                    onPressed: attemptAddExpense,
                     icon: const Icon(Icons.add_chart),
                     label: const Text('Guardar gasto'),
                   ),
                 ),
-                if (categories.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      'Primero crea una categoría para poder registrar gastos.',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ),
               ],
             ),
           ),
@@ -360,6 +427,9 @@ class _MovementsScreenState extends State<MovementsScreen> {
                 title: Text(expense.name),
                 subtitle: Text(
                   '${expense.date.day}/${expense.date.month}/${expense.date.year}' +
+                      (expense.isRecurring
+                          ? ' · Recurrente día ${expense.dayOfMonth ?? expense.date.day}'
+                          : '') +
                       (expense.isFixed ? ' · Fijo' : ''),
                 ),
                 trailing: Text(_formatMoney(expense.amount)),
