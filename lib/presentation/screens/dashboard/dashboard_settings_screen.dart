@@ -8,7 +8,7 @@ class DashboardSettingsScreen extends StatefulWidget {
 
   const DashboardSettingsScreen({
     super.key,
-    required this.configs, required Map<dynamic, dynamic> enabledWidgets,
+    required this.configs,
   });
 
   @override
@@ -39,12 +39,19 @@ class _DashboardSettingsScreenState extends State<DashboardSettingsScreen> {
       ),
       body: ListView(
         children: DashboardWidgetType.values.map((type) {
+          final index = _configs.indexWhere((c) => c.type == type);
+          final config = _configs[index];
+
           return SwitchListTile(
             title: Text(type.title),
-            value: _state[type] ?? false,
+            value: config.enabled,
             onChanged: (value) {
               setState(() {
-                _state[type] = value;
+                _configs[index] = DashboardConfigModel(
+                  type: config.type,
+                  enabled: value,
+                  order: config.order,
+                );
               });
             },
           );
@@ -53,7 +60,7 @@ class _DashboardSettingsScreenState extends State<DashboardSettingsScreen> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.check),
         onPressed: () {
-          Navigator.pop(context, _state);
+          Navigator.pop(context, _configs);
         },
       ),
     );
