@@ -1,3 +1,4 @@
+// Selector de periodo mensual con botones para navegar entre meses y mostrar rango.
 import 'package:flutter/material.dart';
 
 import '../../domain/entities/selected_period.dart';

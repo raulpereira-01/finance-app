@@ -1,3 +1,4 @@
+// Pantalla principal del dashboard que organiza widgets reordenables con métricas clave.
 import 'package:flutter/material.dart';
 
 import '../../../data/models/dashboard_config_model.dart';

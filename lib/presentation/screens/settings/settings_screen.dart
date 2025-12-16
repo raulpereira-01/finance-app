@@ -1,3 +1,4 @@
+// Pantalla de ajustes que permite cambiar el idioma y configurar widgets del dashboard.
 import 'package:flutter/material.dart';
 
 import '../../../l10n/app_localizations.dart';

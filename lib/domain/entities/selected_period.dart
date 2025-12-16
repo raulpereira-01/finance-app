@@ -1,3 +1,4 @@
+// Periodo seleccionado por el usuario, con fechas de inicio y fin para filtrar datos.
 class SelectedPeriod {
   final int month;
   final int year;

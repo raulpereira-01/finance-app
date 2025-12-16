@@ -1,3 +1,4 @@
+// Modal de configuración para habilitar y ordenar los widgets que componen el dashboard.
 import 'package:finance_app/data/models/dashboard_config_model.dart';
 import 'package:flutter/material.dart';
 

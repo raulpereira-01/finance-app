@@ -1,3 +1,4 @@
+// Sección de estadísticas con placeholder para análisis adicionales.
 import 'package:flutter/material.dart';
 
 class StatsScreen extends StatelessWidget {

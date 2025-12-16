@@ -1,3 +1,4 @@
+// Resume ingresos y gastos de un mes leyendo las cajas de Hive correspondientes.
 import 'package:hive/hive.dart';
 
 import '../../core/constants/hive_boxes.dart';

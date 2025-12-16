@@ -1,3 +1,4 @@
+// Controlador que gestiona el idioma y notifica a la app al cambiar la configuración.
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 

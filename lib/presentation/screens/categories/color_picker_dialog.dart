@@ -1,3 +1,4 @@
+// Diálogo de selección de color para asignar tonalidades a una categoría.
 import 'package:flutter/material.dart';
 
 class ColorPickerDialog extends StatelessWidget {

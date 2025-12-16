@@ -1,3 +1,4 @@
+// Compara el ingreso del periodo actual con el mes anterior para mostrar tendencias.
 import '../entities/monthly_comparison.dart';
 import '../entities/selected_period.dart';
 import 'monthly_summary_service.dart';

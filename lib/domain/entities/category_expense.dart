@@ -1,3 +1,4 @@
+// Total de gastos agrupados por categoría para alimentar gráficos y resúmenes.
 class CategoryExpense {
   final String categoryId;
   final double total;

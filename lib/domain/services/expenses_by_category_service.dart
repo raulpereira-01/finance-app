@@ -1,3 +1,4 @@
+// Calcula los gastos acumulados por categoría para un periodo seleccionado.
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 

@@ -1,3 +1,4 @@
+// Enumeración que identifica los diferentes widgets visuales disponibles en el dashboard.
 enum DashboardWidgetType { balance, expensesByCategory, incomeVsExpenses }
 
 extension DashboardWidgetTypeX on DashboardWidgetType {

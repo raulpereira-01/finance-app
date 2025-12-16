@@ -1,3 +1,4 @@
+// Pantalla para crear, editar y eliminar categorías con selector de color y emoji.
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';

@@ -1,3 +1,4 @@
+// InheritedNotifier que expone el AppSettingsController al árbol de widgets.
 import 'package:flutter/widgets.dart';
 
 import 'app_settings_controller.dart';

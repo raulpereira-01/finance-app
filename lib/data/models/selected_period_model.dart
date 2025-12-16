@@ -1,3 +1,4 @@
+// Modelo auxiliar para guardar en Hive el periodo temporal elegido por el usuario.
 import 'package:hive/hive.dart';
 
 import '../../domain/entities/selected_period.dart';

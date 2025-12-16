@@ -1,3 +1,4 @@
+// Elemento configurable que define qué widget del dashboard se muestra y en qué orden.
 enum DashboardItemType { balance, expensesByCategory, incomeVsExpenses }
 
 class DashboardItem {

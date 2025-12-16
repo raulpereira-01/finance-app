@@ -1,3 +1,4 @@
+// Pantalla de inicio que resume ingresos y gastos del periodo y permite cambiar el mes.
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/selected_period.dart';

@@ -1,3 +1,4 @@
+// Modelo de Hive para persistir ingresos recurrentes o puntuales.
 import 'package:hive/hive.dart';
 
 part 'income_model.g.dart';

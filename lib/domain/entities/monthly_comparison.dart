@@ -1,3 +1,4 @@
+// Comparación entre dos periodos para mostrar diferencias y tendencias porcentuales.
 class MonthlyComparison {
   final double current;
   final double previous;

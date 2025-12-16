@@ -1,3 +1,4 @@
+// Pantalla inicial del onboarding que presenta la aplicación y empieza el flujo guiado.
 import 'package:flutter/material.dart';
 
 import 'onboarding_income_screen.dart';
