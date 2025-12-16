@@ -1,3 +1,4 @@
+// Tarjeta que calcula el balance a partir de ingresos y gastos almacenados en Hive.
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 

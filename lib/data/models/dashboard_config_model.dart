@@ -1,3 +1,4 @@
+// Modelo de Hive que guarda la habilitación y el orden de cada widget del dashboard.
 import 'package:hive/hive.dart';
 
 import '../../domain/entities/dashboard_widget_type.dart';

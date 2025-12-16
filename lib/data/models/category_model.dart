@@ -1,3 +1,4 @@
+// Modelo persistente de Hive que almacena las categorías creadas en la aplicación.
 import 'package:hive/hive.dart';
 
 part 'category_model.g.dart';

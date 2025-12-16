@@ -1,3 +1,4 @@
+// Administra en Hive el periodo seleccionado y facilita avanzar o retroceder meses.
 import 'package:hive/hive.dart';
 
 import '../../core/constants/hive_boxes.dart';

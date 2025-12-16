@@ -1,4 +1,5 @@
-// This is a basic Flutter widget test.
+// Prueba inicial que valida que la pantalla de bienvenida del onboarding se muestre correctamente.
+// Conservamos las notas de Flutter para recordar cómo interactuar con los widgets durante los tests.
 //
 // To perform an interaction with a widget in your test, use the WidgetTester
 // utility in the flutter_test package. For example, you can send tap and scroll

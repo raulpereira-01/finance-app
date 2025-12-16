@@ -1,3 +1,4 @@
+// Representación en Hive de un gasto, incluyendo su categoría y si es fijo.
 import 'package:hive/hive.dart';
 
 part 'expense_model.g.dart';

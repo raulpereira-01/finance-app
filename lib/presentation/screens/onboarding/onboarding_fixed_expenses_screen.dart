@@ -1,3 +1,4 @@
+// Paso del onboarding para capturar los gastos fijos mensuales del usuario.
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';

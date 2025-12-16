@@ -1,3 +1,4 @@
+// Shell principal con barra de navegación inferior para Inicio, Movimientos y Ajustes.
 import 'package:finance_app/presentation/screens/home/home_screen.dart';
 import 'package:finance_app/presentation/screens/movements/movements_screen.dart';
 import 'package:finance_app/presentation/screens/settings/settings_screen.dart';

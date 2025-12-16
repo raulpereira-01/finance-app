@@ -1,3 +1,4 @@
+// Entidad que modela un gasto, indicando si es fijo y la categoría asociada.
 class Expense {
   final String id;
   final String name;

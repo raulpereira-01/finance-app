@@ -9,12 +9,23 @@ Aplicación móvil en Flutter para registrar ingresos, gastos y categorías de f
 - **Dashboard configurable**: widgets para balance y desglose de gastos por categoría con opción de habilitar/deshabilitar y reordenar desde la vista de ajustes.
 - **Interfaz Material 3**: tema con `colorSchemeSeed` en verde y banners de depuración desactivados.
 
+## Flujo principal
+- **Autenticación local**: `AuthenticationGate` usa biometría o PIN del dispositivo antes de cargar la app.
+- **Navegación**: la `MainScreen` expone tres pestañas (Inicio, Movimientos y Ajustes) manteniendo el estado de cada una con un `IndexedStack`.
+- **Panel**: el `DashboardScreen` muestra tarjetas reordenables (balance, gastos por categoría e ingresos vs gastos) basadas en la configuración almacenada en Hive.
+- **Movimientos**: la vista de movimientos permite capturar ingresos, gastos y nuevas categorías con formularios rápidos.
+
 ## Estructura del proyecto
 - `lib/main.dart`: inicializa Hive, registra adaptadores y arranca la aplicación con `OnboardingWelcomeScreen`.
 - `lib/data/models/`: modelos `CategoryModel`, `IncomeModel` y `ExpenseModel` con los adaptadores generados.
 - `lib/domain/entities/`: entidades de dominio para ingresos, gastos, categorías, balance mensual y tipos de widgets del panel.
 - `lib/presentation/screens/`: pantallas de onboarding, categorías y dashboard junto con sus widgets auxiliares.
 - `lib/core/constants/`: constantes de nombres de cajas Hive.
+
+### Persistencia e internacionalización
+- Los servicios en `lib/domain/services/` encapsulan la lectura/escritura en Hive para periodos seleccionados, resúmenes mensuales y configuración del dashboard.
+- La clase `AppLocalizations` ofrece un diccionario sencillo de cadenas en inglés y español utilizado en toda la UI.
+- Los adaptadores generados (.g.dart) se crean con `build_runner` y deben mantenerse sincronizados con los modelos anotados con `@HiveType`.
 
 ## Requisitos previos
 - Flutter 3.10+ y SDK de Dart alineado (ver `environment` en `pubspec.yaml`).

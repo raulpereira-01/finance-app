@@ -1,3 +1,4 @@
+// Diccionario simple de cadenas internacionalizadas para inglés y español.
 import 'package:flutter/material.dart';
 
 class AppLocalizations {

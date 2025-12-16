@@ -1,3 +1,4 @@
+// Pantalla de movimientos para registrar ingresos, gastos y categorías desde formularios rápidos.
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';

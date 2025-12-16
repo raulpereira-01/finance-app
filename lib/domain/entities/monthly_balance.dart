@@ -1,3 +1,4 @@
+// Resumen del balance mensual separando ingresos, gastos fijos y variables.
 class MonthlyBalance {
   final double totalIncome;
   final double totalFixedExpenses;

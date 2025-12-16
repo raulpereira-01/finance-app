@@ -1,3 +1,4 @@
+// Gestiona la configuración del dashboard en Hive y genera valores por defecto.
 import 'package:hive/hive.dart';
 
 import '../../data/models/dashboard_config_model.dart';

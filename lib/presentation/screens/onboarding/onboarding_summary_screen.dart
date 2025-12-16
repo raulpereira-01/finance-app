@@ -1,3 +1,4 @@
+// Paso final del onboarding que muestra un resumen de ingresos y gastos fijos capturados.
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 

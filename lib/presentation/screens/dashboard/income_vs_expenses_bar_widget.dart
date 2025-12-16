@@ -1,3 +1,4 @@
+// Widget de barras que compara ingresos vs gastos del periodo seleccionado.
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 

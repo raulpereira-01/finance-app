@@ -1,3 +1,4 @@
+// Gráfico de pastel que distribuye los gastos del periodo entre las categorías existentes.
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 

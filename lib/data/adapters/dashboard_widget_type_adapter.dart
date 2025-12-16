@@ -1,3 +1,4 @@
+// Adaptador de Hive para persistir el enum DashboardWidgetType mediante sus índices.
 import 'package:hive/hive.dart';
 
 import '../../domain/entities/dashboard_widget_type.dart';

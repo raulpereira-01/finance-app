@@ -1,3 +1,4 @@
+// Entidad simple para representar un ingreso con monto y nombre descriptivo.
 class Income {
   final String id;
   final String name;

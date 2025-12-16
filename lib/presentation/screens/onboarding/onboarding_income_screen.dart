@@ -1,3 +1,4 @@
+// Paso del onboarding dedicado a registrar los ingresos principales del usuario.
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';

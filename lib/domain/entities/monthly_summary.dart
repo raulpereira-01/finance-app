@@ -1,3 +1,4 @@
+// Resumen compacto de ingresos y gastos para un periodo determinado.
 class MonthlySummary {
   final double income;
   final double expenses;

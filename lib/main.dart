@@ -1,3 +1,4 @@
+// Punto de entrada de la aplicación: inicializa Hive, carga ajustes y arranca la UI principal.
 import 'package:finance_app/core/constants/hive_boxes.dart';
 import 'package:finance_app/data/models/category_model.dart';
 import 'package:finance_app/data/models/dashboard_config_model.dart';
