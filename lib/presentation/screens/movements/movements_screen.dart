@@ -1,5 +1,6 @@
 // Pantalla de movimientos para registrar ingresos, gastos y categorías desde formularios rápidos.
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
@@ -59,7 +60,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
 
   void _addIncome() {
     final name = _incomeNameController.text.trim();
-    final amount = double.tryParse(_incomeAmountController.text);
+    final amount = _parseAmount(_incomeAmountController.text);
 
     if (name.isEmpty || amount == null || amount <= 0) {
       return;
@@ -136,7 +137,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
 
   void _addExpense() {
     final name = _expenseNameController.text.trim();
-    final amount = double.tryParse(_expenseAmountController.text);
+    final amount = _parseAmount(_expenseAmountController.text);
 
     if (name.isEmpty || amount == null || amount <= 0) return;
     if (_selectedCategoryId == null) {
@@ -169,6 +170,11 @@ class _MovementsScreenState extends State<MovementsScreen> {
 
   String _formatMoney(double value) => value.toStringAsFixed(2);
 
+  double? _parseAmount(String rawValue) {
+    final normalized = rawValue.replaceAll(',', '.');
+    return double.tryParse(normalized);
+  }
+
   Widget _buildIncomeTab() {
     final incomes = _incomeBox.values.toList()
       ..sort((a, b) => a.dayOfMonth.compareTo(b.dayOfMonth));
@@ -195,6 +201,9 @@ class _MovementsScreenState extends State<MovementsScreen> {
                 TextField(
                   controller: _incomeAmountController,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                  ],
                   decoration: const InputDecoration(labelText: 'Monto mensual'),
                 ),
                 const SizedBox(height: 8),
@@ -297,6 +306,9 @@ class _MovementsScreenState extends State<MovementsScreen> {
                 TextField(
                   controller: _expenseAmountController,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                  ],
                   decoration: const InputDecoration(labelText: 'Monto'),
                 ),
                 const SizedBox(height: 8),
