@@ -44,7 +44,6 @@ class _AuthenticationGateState extends State<AuthenticationGate> {
 
     try {
       final supported = await _localAuth.isDeviceSupported();
-      final canCheck = await _localAuth.canCheckBiometrics;
       if (!mounted) return;
 
       if (!supported) {
@@ -52,27 +51,6 @@ class _AuthenticationGateState extends State<AuthenticationGate> {
           _authorized = false;
           _loading = false;
           _state = _AuthState.unsupported;
-        });
-        return;
-      }
-
-      if (!canCheck) {
-        setState(() {
-          _authorized = false;
-          _loading = false;
-          _state = _AuthState.noBiometrics;
-        });
-        return;
-      }
-
-      final biometrics = await _localAuth.getAvailableBiometrics();
-      if (!mounted) return;
-
-      if (biometrics.isEmpty) {
-        setState(() {
-          _authorized = false;
-          _loading = false;
-          _state = _AuthState.noBiometrics;
         });
         return;
       }
@@ -100,6 +78,9 @@ class _AuthenticationGateState extends State<AuthenticationGate> {
       if (error.code == auth_error.lockedOut ||
           error.code == auth_error.permanentlyLockedOut) {
         derivedState = _AuthState.lockedOut;
+      } else if (error.code == auth_error.notEnrolled ||
+          error.code == auth_error.notAvailable) {
+        derivedState = _AuthState.noBiometrics;
       }
 
       setState(() {
