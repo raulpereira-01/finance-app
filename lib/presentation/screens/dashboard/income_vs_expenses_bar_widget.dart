@@ -90,10 +90,16 @@ class IncomeVsExpensesBarWidget extends StatelessWidget {
                     rightTitles: const AxisTitles(
                       sideTitles: SideTitles(showTitles: false),
                     ),
-                    leftTitles: const AxisTitles(
+                    leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        reservedSize: 32,
+                        reservedSize: 42,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            value.toStringAsFixed(1),
+                            style: TextStyle(fontSize: 11),
+                          );
+                        },
                       ),
                     ),
                     bottomTitles: AxisTitles(

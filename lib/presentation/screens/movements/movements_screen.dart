@@ -1,5 +1,6 @@
 // Pantalla de movimientos para registrar ingresos, gastos y categorías desde formularios rápidos.
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
@@ -19,9 +20,13 @@ class MovementsScreen extends StatefulWidget {
 class _MovementsScreenState extends State<MovementsScreen> {
   final _uuid = const Uuid();
 
+  final _incomeFormKey = GlobalKey<FormState>();
+  final _expenseFormKey = GlobalKey<FormState>();
+
   final _incomeNameController = TextEditingController();
   final _incomeAmountController = TextEditingController();
   int _incomeDay = DateTime.now().day;
+  bool _showIncomeErrors = false;
 
   final _categoryNameController = TextEditingController();
   String _selectedEmoji = '💸';
@@ -34,6 +39,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
   bool _isFixedExpense = false;
   bool _isRecurringExpense = false;
   int _expenseDay = DateTime.now().day;
+  bool _showExpenseErrors = false;
 
   late Box<IncomeModel> _incomeBox;
   late Box<CategoryModel> _categoryBox;
@@ -58,12 +64,15 @@ class _MovementsScreenState extends State<MovementsScreen> {
   }
 
   void _addIncome() {
-    final name = _incomeNameController.text.trim();
-    final amount = double.tryParse(_incomeAmountController.text);
-
-    if (name.isEmpty || amount == null || amount <= 0) {
+    final form = _incomeFormKey.currentState;
+    if (form == null) return;
+    if (!form.validate()) {
+      setState(() => _showIncomeErrors = true);
       return;
     }
+
+    final name = _incomeNameController.text.trim();
+    final amount = _parseAmount(_incomeAmountController.text)!;
 
     final income = IncomeModel(
       id: _uuid.v4(),
@@ -77,8 +86,12 @@ class _MovementsScreenState extends State<MovementsScreen> {
 
     _incomeNameController.clear();
     _incomeAmountController.clear();
+    FocusScope.of(context).unfocus();
+    _showSnackBar('Ingreso guardado');
 
-    setState(() {});
+    setState(() {
+      _showIncomeErrors = false;
+    });
   }
 
   void _addCategory() {
@@ -96,6 +109,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
     _categoryNameController.clear();
 
     setState(() {});
+    _showSnackBar('Categoría creada');
   }
 
   Future<void> _pickExpenseDate() async {
@@ -135,14 +149,15 @@ class _MovementsScreenState extends State<MovementsScreen> {
   }
 
   void _addExpense() {
-    final name = _expenseNameController.text.trim();
-    final amount = double.tryParse(_expenseAmountController.text);
-
-    if (name.isEmpty || amount == null || amount <= 0) return;
-    if (_selectedCategoryId == null) {
-      _showMissingCategoryDialog(noCategories: false);
+    final form = _expenseFormKey.currentState;
+    if (form == null) return;
+    if (!form.validate()) {
+      setState(() => _showExpenseErrors = true);
       return;
     }
+
+    final name = _expenseNameController.text.trim();
+    final amount = _parseAmount(_expenseAmountController.text)!;
 
     final expense = ExpenseModel(
       id: _uuid.v4(),
@@ -163,11 +178,48 @@ class _MovementsScreenState extends State<MovementsScreen> {
     _isFixedExpense = false;
     _isRecurringExpense = false;
     _expenseDay = DateTime.now().day;
+    _selectedCategoryId = null;
 
-    setState(() {});
+    FocusScope.of(context).unfocus();
+    _showSnackBar('Gasto guardado');
+
+    setState(() {
+      _showExpenseErrors = false;
+    });
   }
 
   String _formatMoney(double value) => value.toStringAsFixed(2);
+
+  double? _parseAmount(String rawValue) {
+    final normalized = _normalizeAmount(rawValue);
+    if (normalized.isEmpty) return null;
+    return double.tryParse(normalized);
+  }
+
+  String _normalizeAmount(String rawValue) {
+    final cleaned = rawValue.trim().replaceAll(RegExp(r'\s+'), '').replaceAll(',', '.');
+    if (cleaned.isEmpty) return '';
+
+    final onlyAllowed = cleaned.replaceAll(RegExp(r'[^0-9.]'), '');
+    final firstDot = onlyAllowed.indexOf('.');
+
+    if (firstDot == -1) {
+      return onlyAllowed;
+    }
+
+    final before = onlyAllowed.substring(0, firstDot);
+    final after = onlyAllowed.substring(firstDot + 1).replaceAll('.', '');
+    final leading = before.isEmpty ? '0' : before;
+    final trailing = after.isEmpty ? '0' : after;
+    return '$leading.$trailing';
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 
   Widget _buildIncomeTab() {
     final incomes = _incomeBox.values.toList()
@@ -184,49 +236,89 @@ class _MovementsScreenState extends State<MovementsScreen> {
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: _incomeNameController,
-                  decoration: const InputDecoration(labelText: 'Nombre del ingreso'),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _incomeAmountController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(labelText: 'Monto mensual'),
-                ),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<int>(
-                  value: _incomeDay,
-                  decoration: const InputDecoration(
-                    labelText: 'Día del mes',
+            child: Form(
+              key: _incomeFormKey,
+              autovalidateMode: _showIncomeErrors
+                  ? AutovalidateMode.always
+                  : AutovalidateMode.disabled,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextFormField(
+                    controller: _incomeNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre del ingreso',
+                      hintText: 'Ej. Nómina, freelance...',
+                    ),
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Ingresa un nombre para identificarlo';
+                      }
+                      return null;
+                    },
                   ),
-                  items: List.generate(31, (index) => index + 1)
-                      .map(
-                        (day) => DropdownMenuItem(
-                          value: day,
-                          child: Text('El día $day de cada mes'),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => _incomeDay = value);
-                    }
-                  },
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _addIncome,
-                    icon: const Icon(Icons.save_alt),
-                    label: const Text('Guardar ingreso'),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: _incomeAmountController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                    ],
+                    decoration: const InputDecoration(
+                      labelText: 'Monto mensual',
+                      helperText: 'Acepta comas o puntos; se guardará con dos decimales.',
+                    ),
+                    validator: (value) {
+                      final amount = _parseAmount(value ?? '');
+                      if (amount == null) return 'Introduce un número válido';
+                      if (amount <= 0) return 'El monto debe ser mayor a cero';
+                      return null;
+                    },
                   ),
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<int>(
+                    value: _incomeDay,
+                    decoration: const InputDecoration(
+                      labelText: 'Día del mes',
+                    ),
+                    items: List.generate(31, (index) => index + 1)
+                        .map(
+                          (day) => DropdownMenuItem(
+                            value: day,
+                            child: Text('El día $day de cada mes'),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _incomeDay = value);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _addIncome,
+                      icon: const Icon(Icons.save_alt),
+                      label: const Text('Guardar ingreso'),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: () {
+                        _incomeNameController.clear();
+                        _incomeAmountController.clear();
+                        setState(() => _showIncomeErrors = false);
+                      },
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Limpiar formulario'),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -283,114 +375,173 @@ class _MovementsScreenState extends State<MovementsScreen> {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
+        if (categories.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Card(
+              color: Theme.of(context).colorScheme.secondaryContainer,
+              child: const Padding(
+                padding: EdgeInsets.all(12),
+                child: Text('Crea una categoría primero para poder clasificar tus gastos.'),
+              ),
+            ),
+          ),
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: _expenseNameController,
-                  decoration: const InputDecoration(labelText: 'Concepto'),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _expenseAmountController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(labelText: 'Monto'),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Fecha: ${_selectedExpenseDate.day}/${_selectedExpenseDate.month}/${_selectedExpenseDate.year}',
-                      ),
-                    ),
-                    TextButton.icon(
-                      onPressed: _pickExpenseDate,
-                      icon: const Icon(Icons.calendar_today_outlined),
-                      label: const Text('Cambiar'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                if (_isRecurringExpense)
-                  DropdownButtonFormField<int>(
-                    value: _expenseDay,
+            child: Form(
+              key: _expenseFormKey,
+              autovalidateMode: _showExpenseErrors
+                  ? AutovalidateMode.always
+                  : AutovalidateMode.disabled,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextFormField(
+                    controller: _expenseNameController,
                     decoration: const InputDecoration(
-                      labelText: 'Se repite cada mes el día…',
+                      labelText: 'Concepto',
+                      hintText: 'Ej. Supermercado, alquiler…',
                     ),
-                    items: List.generate(31, (index) => index + 1)
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Añade un concepto para el gasto';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: _expenseAmountController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                    ],
+                    decoration: const InputDecoration(
+                      labelText: 'Monto',
+                      helperText: 'Permite comas o puntos; se guardará con dos decimales.',
+                    ),
+                    validator: (value) {
+                      final amount = _parseAmount(value ?? '');
+                      if (amount == null) return 'Introduce un número válido';
+                      if (amount <= 0) return 'El monto debe ser mayor a cero';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Fecha: ${_selectedExpenseDate.day}/${_selectedExpenseDate.month}/${_selectedExpenseDate.year}',
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: _pickExpenseDate,
+                        icon: const Icon(Icons.calendar_today_outlined),
+                        label: const Text('Cambiar'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  if (_isRecurringExpense)
+                    DropdownButtonFormField<int>(
+                      value: _expenseDay,
+                      decoration: const InputDecoration(
+                        labelText: 'Se repite cada mes el día…',
+                      ),
+                      items: List.generate(31, (index) => index + 1)
+                          .map(
+                            (day) => DropdownMenuItem(
+                              value: day,
+                              child: Text('Día $day de cada mes'),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() => _expenseDay = value);
+                        }
+                      },
+                    ),
+                  if (_isRecurringExpense) const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: _selectedCategoryId,
+                    hint: const Text('Selecciona categoría'),
+                    items: categories
                         .map(
-                          (day) => DropdownMenuItem(
-                            value: day,
-                            child: Text('Día $day de cada mes'),
+                          (category) => DropdownMenuItem(
+                            value: category.id,
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: Color(category.colorValue),
+                                  child: Text(category.emoji),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(category.name),
+                              ],
+                            ),
                           ),
                         )
                         .toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() => _expenseDay = value);
+                    onChanged: categories.isEmpty
+                        ? null
+                        : (value) {
+                            setState(() => _selectedCategoryId = value);
+                          },
+                    validator: (_) {
+                      if (categories.isEmpty) return 'Crea una categoría para continuar';
+                      if (_selectedCategoryId == null) {
+                        return 'Selecciona una categoría';
                       }
+                      return null;
                     },
                   ),
-                if (_isRecurringExpense) const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  value: _selectedCategoryId,
-                  hint: const Text('Selecciona categoría'),
-                  items: categories
-                      .map(
-                        (category) => DropdownMenuItem(
-                          value: category.id,
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundColor: Color(category.colorValue),
-                                child: Text(category.emoji),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(category.name),
-                            ],
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: categories.isEmpty
-                      ? null
-                      : (value) {
-                          setState(() => _selectedCategoryId = value);
-                        },
-                ),
-                const SizedBox(height: 8),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('¿Es un gasto fijo?'),
-                  value: _isFixedExpense,
-                  onChanged: (value) => setState(() => _isFixedExpense = value),
-                ),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('Repetir automáticamente cada mes'),
-                  value: _isRecurringExpense,
-                  onChanged: (value) => setState(() {
-                    _isRecurringExpense = value;
-                    if (value) {
-                      _expenseDay = _selectedExpenseDate.day;
-                    }
-                  }),
-                  subtitle: const Text('Ideal para alquileres, suscripciones, etc.'),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: attemptAddExpense,
-                    icon: const Icon(Icons.add_chart),
-                    label: const Text('Guardar gasto'),
+                  const SizedBox(height: 8),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('¿Es un gasto fijo?'),
+                    value: _isFixedExpense,
+                    onChanged: (value) => setState(() => _isFixedExpense = value),
                   ),
-                ),
-              ],
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Repetir automáticamente cada mes'),
+                    value: _isRecurringExpense,
+                    onChanged: (value) => setState(() {
+                      _isRecurringExpense = value;
+                      if (value) {
+                        _expenseDay = _selectedExpenseDate.day;
+                      }
+                    }),
+                    subtitle: const Text('Ideal para alquileres, suscripciones, etc.'),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: attemptAddExpense,
+                      icon: const Icon(Icons.add_chart),
+                      label: const Text('Guardar gasto'),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: () {
+                        _expenseNameController.clear();
+                        _expenseAmountController.clear();
+                        _selectedCategoryId = null;
+                        setState(() => _showExpenseErrors = false);
+                      },
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Limpiar formulario'),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
