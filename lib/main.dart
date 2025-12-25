@@ -10,6 +10,7 @@ import 'package:finance_app/presentation/screens/main/main_screen.dart';
 import 'package:finance_app/presentation/state/app_settings_controller.dart';
 import 'package:finance_app/presentation/state/app_settings_scope.dart';
 import 'package:finance_app/presentation/widgets/authentication_gate.dart';
+import 'package:finance_app/presentation/widgets/firebase_auth_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -67,8 +68,12 @@ class FinanceApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            home: const AuthenticationGate(
-              child: MainScreen(),
+            home: SessionLifecycleSignOut(
+              child: FirebaseAuthGate(
+                authenticatedChild: const AuthenticationGate(
+                  child: MainScreen(),
+                ),
+              ),
             ),
           );
         },
