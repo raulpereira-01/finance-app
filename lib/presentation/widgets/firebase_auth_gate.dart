@@ -43,6 +43,55 @@ class FirebaseAuthGate extends StatelessWidget {
   }
 }
 
+/// Observa el ciclo de vida de la app y cierra la sesión de Firebase cuando
+/// la app pasa a segundo plano o se cierra, forzando un nuevo inicio de sesión
+/// o la autenticación biométrica en el siguiente arranque.
+class SessionLifecycleSignOut extends StatefulWidget {
+  final Widget child;
+
+  const SessionLifecycleSignOut({super.key, required this.child});
+
+  @override
+  State<SessionLifecycleSignOut> createState() => _SessionLifecycleSignOutState();
+}
+
+class _SessionLifecycleSignOutState extends State<SessionLifecycleSignOut>
+    with WidgetsBindingObserver {
+  bool _signingOut = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      _signOut();
+    }
+  }
+
+  Future<void> _signOut() async {
+    if (_signingOut) return;
+    _signingOut = true;
+    try {
+      await FirebaseAuth.instance.signOut();
+    } finally {
+      _signingOut = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
 class _EmailPasswordAuthScreen extends StatefulWidget {
   const _EmailPasswordAuthScreen();
 

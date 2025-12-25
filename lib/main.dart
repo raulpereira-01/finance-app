@@ -68,9 +68,11 @@ class FinanceApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            home: FirebaseAuthGate(
-              authenticatedChild: const AuthenticationGate(
-                child: MainScreen(),
+            home: SessionLifecycleSignOut(
+              child: FirebaseAuthGate(
+                authenticatedChild: const AuthenticationGate(
+                  child: MainScreen(),
+                ),
               ),
             ),
           );
