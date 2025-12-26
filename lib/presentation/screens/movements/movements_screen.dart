@@ -353,7 +353,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
                   child: Text(
                     _isListening
                         ? 'Escuchando… habla cerca del micrófono'
-                        : 'Dicta un gasto o ingreso. Ej: "Pagando supermercado 35 euros"',
+                        : 'Dicta un gasto o ingreso. Ej: "gasto supermercado 35 euros"',
                   ),
                 ),
                 ElevatedButton.icon(
