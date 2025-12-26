@@ -225,7 +225,9 @@ class _MovementsScreenState extends State<MovementsScreen> {
     });
 
     try {
-      await _voskChannel.invokeMethod('start');
+      await _voskChannel.invokeMethod('start', {
+        'locale': 'es-ES',
+      });
       _voiceSubscription ??=
           _voskResultsChannel.receiveBroadcastStream().listen((event) {
         if (event is String && event.isNotEmpty) {
@@ -354,15 +356,31 @@ class _MovementsScreenState extends State<MovementsScreen> {
                         : 'Dicta un gasto o ingreso. Ej: "Pagando supermercado 35 euros"',
                   ),
                 ),
-                IconButton(
+                ElevatedButton.icon(
                   onPressed: _toggleListening,
                   icon: Icon(
                     _isListening ? Icons.stop_circle_outlined : Icons.mic_none,
                   ),
-                  tooltip: _isListening ? 'Detener' : 'Escuchar',
+                  label:
+                      Text(_isListening ? 'Detener' : 'Añadir con micrófono'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(0, 42),
+                  ),
                 )
               ],
             ),
+            const SizedBox(height: 8),
+            const Text(
+              'Cómo usar los comandos de voz:',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
+            const Text('1. Pulsa "Añadir con micrófono" y acepta el permiso.'),
+            const Text('2. Di claramente el tipo de movimiento y el monto en español.'),
+            const Text(
+              '   Ejemplos: "gasto supermercado 35 euros" o "ingreso nómina 1200".',
+            ),
+            const Text('3. Revisa el borrador y presiona "Guardar con voz".'),
             if (_lastTranscript != null) ...[
               const SizedBox(height: 8),
               Text(
