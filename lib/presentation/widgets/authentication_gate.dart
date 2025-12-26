@@ -58,10 +58,10 @@ class _AuthenticationGateState extends State<AuthenticationGate> {
         localizedReason: AppLocalizations.of(context).authenticationMessage,
         options: const AuthenticationOptions(
           biometricOnly: false,
-          useErrorDialogs: true,
           stickyAuth: true,
         ),
       );
+
 
       if (!mounted) return;
 
