@@ -6,7 +6,7 @@ El mensaje "Because finance_app depends on vosk_flutter ^0.2.0 which doesn't mat
    - En una terminal con conexión a internet, ejecuta `flutter pub outdated vosk_flutter` o revisa manualmente en https://pub.dev/packages/vosk_flutter las versiones liberadas. Anota la versión más reciente publicada (por ejemplo, `0.1.x`).
 
 2. **Actualiza solo la entrada en `pubspec.yaml`**
-   - Sustituye `vosk_flutter: ^0.2.0` por la última versión disponible (p. ej. `vosk_flutter: ^0.1.x`).
+   - Sustituye `vosk_flutter: ^0.3.0` por la última versión disponible (p. ej. `vosk_flutter: ^0.1.x`).
    - Guarda el archivo sin cambiar ningún otro bloque de código.
 
 3. **Regenera las dependencias**
