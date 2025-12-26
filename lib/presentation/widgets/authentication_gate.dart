@@ -1,7 +1,6 @@
 // Barrera de autenticación biométrica o PIN que protege el acceso a la app.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:local_auth/local_auth.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -57,11 +56,9 @@ class _AuthenticationGateState extends State<AuthenticationGate> {
 
       final didAuthenticate = await _localAuth.authenticate(
         localizedReason: AppLocalizations.of(context).authenticationMessage,
-        options: const AuthenticationOptions(
-          biometricOnly: false,
-          stickyAuth: true,
-          useErrorDialogs: true,
-        ),
+        useErrorDialogs: true,
+        stickyAuth: true,
+        biometricOnly: false,
       );
 
       if (!mounted) return;
@@ -75,11 +72,10 @@ class _AuthenticationGateState extends State<AuthenticationGate> {
       if (!mounted) return;
 
       _AuthState derivedState = _AuthState.failed;
-      if (error.code == auth_error.lockedOut ||
-          error.code == auth_error.permanentlyLockedOut) {
+      if (error.code == 'LockedOut' || error.code == 'PermanentlyLockedOut') {
         derivedState = _AuthState.lockedOut;
-      } else if (error.code == auth_error.notEnrolled ||
-          error.code == auth_error.notAvailable) {
+      } else if (error.code == 'NotEnrolled' ||
+          error.code == 'NotAvailable') {
         derivedState = _AuthState.noBiometrics;
       }
 
