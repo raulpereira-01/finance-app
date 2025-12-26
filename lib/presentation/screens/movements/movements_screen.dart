@@ -2,9 +2,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/constants/hive_boxes.dart';
@@ -23,11 +23,9 @@ class MovementsScreen extends StatefulWidget {
 }
 
 class _MovementsScreenState extends State<MovementsScreen> {
-  static const _voskChannel = MethodChannel('com.finance_app/vosk');
-  static const _voskResultsChannel = EventChannel('com.finance_app/vosk/results');
-
   final _uuid = const Uuid();
   final _voiceService = VoiceTransactionService(parser: VoiceIntentParser());
+  final _speechToText = SpeechToText();
 
   final _incomeFormKey = GlobalKey<FormState>();
   final _expenseFormKey = GlobalKey<FormState>();
@@ -50,7 +48,6 @@ class _MovementsScreenState extends State<MovementsScreen> {
   int _expenseDay = DateTime.now().day;
   bool _showExpenseErrors = false;
 
-  StreamSubscription<dynamic>? _voiceSubscription;
   bool _isListening = false;
   String? _lastTranscript;
   VoiceTransactionDraft? _voiceDraft;
@@ -75,7 +72,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
     _categoryNameController.dispose();
     _expenseNameController.dispose();
     _expenseAmountController.dispose();
-    _voiceSubscription?.cancel();
+    _speechToText.cancel();
     super.dispose();
   }
 
@@ -225,15 +222,33 @@ class _MovementsScreenState extends State<MovementsScreen> {
     });
 
     try {
-      await _voskChannel.invokeMethod('start', {
-        'locale': 'es-ES',
-      });
-      _voiceSubscription ??=
-          _voskResultsChannel.receiveBroadcastStream().listen((event) {
-        if (event is String && event.isNotEmpty) {
-          _handleTranscript(event);
-        }
-      });
+      final isAvailable = await _speechToText.initialize(
+        onStatus: (_) {},
+        onError: (error) {
+          setState(() {
+            _voiceError = 'Error de reconocimiento: ${error.errorMsg}';
+          });
+        },
+      );
+
+      if (!isAvailable) {
+        setState(() {
+          _voiceError =
+              'No se pudo inicializar el reconocimiento de voz en este dispositivo';
+          _isListening = false;
+        });
+        return;
+      }
+
+      await _speechToText.listen(
+        localeId: 'es_ES',
+        listenMode: ListenMode.dictation,
+        onResult: (result) {
+          if (result.recognizedWords.isNotEmpty) {
+            _handleTranscript(result.recognizedWords);
+          }
+        },
+      );
     } catch (error) {
       setState(() {
         _voiceError = 'Error al iniciar el reconocimiento: $error';
@@ -244,13 +259,10 @@ class _MovementsScreenState extends State<MovementsScreen> {
 
   Future<void> _stopListening() async {
     try {
-      await _voskChannel.invokeMethod('stop');
+      await _speechToText.stop();
     } catch (_) {
-      // Ignored: canal nativo puede no estar implementado en entornos de prueba.
+      // Ignored: SpeechToText puede lanzar si no está inicializado.
     }
-
-    await _voiceSubscription?.cancel();
-    _voiceSubscription = null;
 
     setState(() {
       _isListening = false;
