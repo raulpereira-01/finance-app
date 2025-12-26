@@ -1,13 +1,18 @@
 // Pantalla de movimientos para registrar ingresos, gastos y categorías desde formularios rápidos.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/constants/hive_boxes.dart';
+import '../../../core/voice_intent_parser.dart';
 import '../../../data/models/category_model.dart';
 import '../../../data/models/expense_model.dart';
 import '../../../data/models/income_model.dart';
+import '../../../domain/services/voice_transaction_service.dart';
 import '../categories/color_picker_dialog.dart';
 
 class MovementsScreen extends StatefulWidget {
@@ -18,7 +23,11 @@ class MovementsScreen extends StatefulWidget {
 }
 
 class _MovementsScreenState extends State<MovementsScreen> {
+  static const _voskChannel = MethodChannel('com.finance_app/vosk');
+  static const _voskResultsChannel = EventChannel('com.finance_app/vosk/results');
+
   final _uuid = const Uuid();
+  final _voiceService = VoiceTransactionService(parser: VoiceIntentParser());
 
   final _incomeFormKey = GlobalKey<FormState>();
   final _expenseFormKey = GlobalKey<FormState>();
@@ -41,6 +50,12 @@ class _MovementsScreenState extends State<MovementsScreen> {
   int _expenseDay = DateTime.now().day;
   bool _showExpenseErrors = false;
 
+  StreamSubscription<dynamic>? _voiceSubscription;
+  bool _isListening = false;
+  String? _lastTranscript;
+  VoiceTransactionDraft? _voiceDraft;
+  String? _voiceError;
+
   late Box<IncomeModel> _incomeBox;
   late Box<CategoryModel> _categoryBox;
   late Box<ExpenseModel> _expenseBox;
@@ -60,6 +75,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
     _categoryNameController.dispose();
     _expenseNameController.dispose();
     _expenseAmountController.dispose();
+    _voiceSubscription?.cancel();
     super.dispose();
   }
 
@@ -186,6 +202,284 @@ class _MovementsScreenState extends State<MovementsScreen> {
     setState(() {
       _showExpenseErrors = false;
     });
+  }
+
+  Future<void> _toggleListening() async {
+    if (_isListening) {
+      await _stopListening();
+      return;
+    }
+
+    final status = await Permission.microphone.request();
+    if (!status.isGranted) {
+      setState(() {
+        _voiceError = 'Permiso de micrófono denegado';
+      });
+      return;
+    }
+
+    setState(() {
+      _isListening = true;
+      _voiceError = null;
+      _lastTranscript = null;
+    });
+
+    try {
+      await _voskChannel.invokeMethod('start');
+      _voiceSubscription ??=
+          _voskResultsChannel.receiveBroadcastStream().listen((event) {
+        if (event is String && event.isNotEmpty) {
+          _handleTranscript(event);
+        }
+      });
+    } catch (error) {
+      setState(() {
+        _voiceError = 'Error al iniciar el reconocimiento: $error';
+        _isListening = false;
+      });
+    }
+  }
+
+  Future<void> _stopListening() async {
+    try {
+      await _voskChannel.invokeMethod('stop');
+    } catch (_) {
+      // Ignored: canal nativo puede no estar implementado en entornos de prueba.
+    }
+
+    await _voiceSubscription?.cancel();
+    _voiceSubscription = null;
+
+    setState(() {
+      _isListening = false;
+    });
+  }
+
+  Future<void> _handleTranscript(String transcript) async {
+    setState(() {
+      _lastTranscript = transcript;
+      _voiceError = null;
+    });
+
+    try {
+      final draft = _voiceService.parseTranscript(transcript);
+
+      setState(() {
+        _voiceDraft = draft;
+        _expenseNameController.text = draft.concept;
+        _expenseAmountController.text = draft.amount.toStringAsFixed(2);
+        _selectedCategoryId = draft.categoryId;
+      });
+    } on FormatException catch (error) {
+      setState(() {
+        _voiceError = error.message;
+      });
+    } catch (error) {
+      setState(() {
+        _voiceError = 'No se pudo procesar la transcripción: $error';
+      });
+    }
+  }
+
+  Future<void> _confirmVoiceDraft(List<CategoryModel> categories) async {
+    final draft = _voiceDraft;
+    if (draft == null) return;
+
+    final parsedAmount = _parseAmount(_expenseAmountController.text);
+    final amount = parsedAmount ?? draft.amount;
+    if (amount <= 0) {
+      setState(() {
+        _voiceError = 'El monto debe ser mayor a cero';
+      });
+      return;
+    }
+
+    String? categoryId = draft.categoryId;
+    String? categoryName = draft.categoryName;
+
+    if (draft.intent == VoiceIntent.expense) {
+      if (_selectedCategoryId != null) {
+        categoryId = _selectedCategoryId;
+        categoryName = categories
+            .firstWhere((c) => c.id == _selectedCategoryId!)
+            .name;
+      }
+    } else {
+      categoryId = null;
+    }
+
+    final updatedDraft = draft.copyWith(
+      concept: _expenseNameController.text.trim().isEmpty
+          ? draft.concept
+          : _expenseNameController.text.trim(),
+      amount: amount,
+      categoryId: categoryId,
+      categoryName: categoryName,
+    );
+
+    await _voiceService.persistDraft(updatedDraft);
+
+    setState(() {
+      _voiceDraft = null;
+      _lastTranscript = null;
+      _selectedCategoryId = null;
+    });
+
+    _expenseNameController.clear();
+    _expenseAmountController.clear();
+    _showSnackBar('Transacción guardada desde voz');
+  }
+
+  Widget _buildVoiceAssistant(List<CategoryModel> categories) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  _isListening ? Icons.hearing : Icons.mic,
+                  color: _isListening
+                      ? Theme.of(context).colorScheme.primary
+                      : null,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _isListening
+                        ? 'Escuchando… habla cerca del micrófono'
+                        : 'Dicta un gasto o ingreso. Ej: "Pagando supermercado 35 euros"',
+                  ),
+                ),
+                IconButton(
+                  onPressed: _toggleListening,
+                  icon: Icon(
+                    _isListening ? Icons.stop_circle_outlined : Icons.mic_none,
+                  ),
+                  tooltip: _isListening ? 'Detener' : 'Escuchar',
+                )
+              ],
+            ),
+            if (_lastTranscript != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Último dictado: "${_lastTranscript!}"',
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ],
+            if (_voiceError != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                _voiceError!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
+            if (_voiceDraft != null) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  Chip(
+                    avatar: Icon(
+                      _voiceDraft!.intent == VoiceIntent.income
+                          ? Icons.arrow_downward
+                          : Icons.arrow_upward,
+                    ),
+                    label: Text(
+                      _voiceDraft!.intent == VoiceIntent.income
+                          ? 'Ingreso'
+                          : 'Gasto',
+                    ),
+                  ),
+                  Chip(
+                    label: Text('Categoría: ${_voiceDraft!.categoryName}'),
+                  ),
+                  Chip(
+                    label: Text('Monto: ${_formatMoney(_voiceDraft!.amount)}'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Corrige si es necesario antes de guardar:',
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _expenseNameController,
+                decoration: const InputDecoration(labelText: 'Concepto'),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _expenseAmountController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(labelText: 'Monto'),
+              ),
+              if (_voiceDraft!.intent == VoiceIntent.expense) ...[
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: _selectedCategoryId ?? _voiceDraft!.categoryId,
+                  hint: const Text('Categoría detectada'),
+                  items: categories
+                      .map(
+                        (category) => DropdownMenuItem(
+                          value: category.id,
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: Color(category.colorValue),
+                                child: Text(category.emoji),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(category.name),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: categories.isEmpty
+                      ? null
+                      : (value) {
+                          setState(() {
+                            _selectedCategoryId = value;
+                          });
+                        },
+                ),
+              ],
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () => _confirmVoiceDraft(categories),
+                    icon: const Icon(Icons.save),
+                    label: const Text('Guardar con voz'),
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _voiceDraft = null;
+                        _lastTranscript = null;
+                        _voiceError = null;
+                        _selectedCategoryId = null;
+                      });
+                      _expenseNameController.clear();
+                      _expenseAmountController.clear();
+                    },
+                    child: const Text('Descartar'),
+                  ),
+                ],
+              )
+            ]
+          ],
+        ),
+      ),
+    );
   }
 
   String _formatMoney(double value) => value.toStringAsFixed(2);
@@ -375,6 +669,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
+        _buildVoiceAssistant(categories),
         if (categories.isEmpty)
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
