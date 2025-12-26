@@ -56,9 +56,11 @@ class _AuthenticationGateState extends State<AuthenticationGate> {
 
       final didAuthenticate = await _localAuth.authenticate(
         localizedReason: AppLocalizations.of(context).authenticationMessage,
-        useErrorDialogs: true,
-        stickyAuth: true,
-        biometricOnly: false,
+        options: const AuthenticationOptions(
+          useErrorDialogs: true,
+          stickyAuth: true,
+          biometricOnly: false,
+        ),
       );
 
       if (!mounted) return;
