@@ -24,6 +24,23 @@ subprojects {
 subprojects {
     if (name == "vosk_flutter") {
         plugins.withId("com.android.library") {
+            // The plugin still ships a package attribute inside its manifest, which
+            // is no longer supported when using the Android Gradle Plugin 8+.
+            // Remove it at configuration time to prevent manifest processing from
+            // failing during builds.
+            val manifestFile = file("src/main/AndroidManifest.xml")
+            if (manifestFile.exists()) {
+                val originalContent = manifestFile.readText()
+                val sanitizedContent = originalContent.replaceFirst(
+                    Regex("""package\s*=\s*\"[^\"]+\"\s*"""),
+                    ""
+                )
+
+                if (originalContent != sanitizedContent) {
+                    manifestFile.writeText(sanitizedContent)
+                }
+            }
+
             extensions.configure<LibraryExtension>("android") {
                 namespace = "org.vosk_flutter"
             }
